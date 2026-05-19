@@ -20,6 +20,12 @@ Production URL:
 https://www.projecthealth.com
 ```
 
+Staging URL:
+
+```text
+https://staging.projecthealth.com
+```
+
 The local development URL `http://127.0.0.1:4174/index.html?domain-final=1#security` corresponds to the production URL:
 
 ```text
@@ -45,12 +51,27 @@ $env:COOKIE_DOMAIN=".projecthealth.com"
 
 The simplest production setup is to serve the website and `/api/*` from the same domain so login cookies work consistently in Chrome and Safari.
 
+For staging, use the staging subdomain and the staging environment file:
+
+```powershell
+$env:HOST="0.0.0.0"
+$env:PORT="4174"
+$env:PROJECT_DOMAIN="staging.projecthealth.com"
+$env:PUBLIC_ORIGIN="https://staging.projecthealth.com"
+$env:CANONICAL_ORIGIN="https://staging.projecthealth.com"
+$env:ALLOWED_ORIGINS="https://staging.projecthealth.com,https://www.projecthealth.com"
+$env:COOKIE_DOMAIN=".projecthealth.com"
+$env:COOKIE_SECURE="true"
+npm start
+```
+
 ## Production Deployment
 
 This project now includes deployment assets for DNS, hosting, and HTTPS:
 
 ```text
 .env.production.example
+.env.staging.example
 Dockerfile
 netlify.toml
 vercel.json

@@ -6,6 +6,12 @@ Production URL:
 https://www.projecthealth.com
 ```
 
+Staging URL:
+
+```text
+https://staging.projecthealth.com
+```
+
 Local development URL:
 
 ```text
@@ -27,6 +33,7 @@ Required domain:
 ```text
 projecthealth.com
 www.projecthealth.com
+staging.projecthealth.com
 ```
 
 ## 2. Deploy The Website And Backend
@@ -63,6 +70,20 @@ export PROJECT_DOMAIN=www.projecthealth.com
 export PUBLIC_ORIGIN=https://www.projecthealth.com
 export CANONICAL_ORIGIN=https://www.projecthealth.com
 export ALLOWED_ORIGINS=https://www.projecthealth.com
+export COOKIE_DOMAIN=.projecthealth.com
+export COOKIE_SECURE=true
+npm start
+```
+
+For staging, use:
+
+```bash
+export HOST=0.0.0.0
+export PORT=4174
+export PROJECT_DOMAIN=staging.projecthealth.com
+export PUBLIC_ORIGIN=https://staging.projecthealth.com
+export CANONICAL_ORIGIN=https://staging.projecthealth.com
+export ALLOWED_ORIGINS=https://staging.projecthealth.com,https://www.projecthealth.com
 export COOKIE_DOMAIN=.projecthealth.com
 export COOKIE_SECURE=true
 npm start
@@ -112,6 +133,7 @@ If hosting on a VM with a public IP:
 Type  Name  Value
 A     @     YOUR_SERVER_PUBLIC_IPV4
 A     www   YOUR_SERVER_PUBLIC_IPV4
+A     staging YOUR_SERVER_PUBLIC_IPV4
 ```
 
 If the host provides a CNAME target:
@@ -119,6 +141,7 @@ If the host provides a CNAME target:
 ```text
 Type   Name  Value
 CNAME  www   YOUR_HOSTING_PROVIDER_TARGET
+CNAME  staging YOUR_STAGING_HOSTING_PROVIDER_TARGET
 ```
 
 Common examples:
@@ -130,6 +153,7 @@ A     www   server public IP
 
 Vercel / Netlify / managed host:
 CNAME www   provider target
+CNAME staging   staging provider target
 A     @     provider IP if they provide one
 ```
 
@@ -158,7 +182,7 @@ deployment/nginx/projecthealth.conf
 Issue the certificate:
 
 ```bash
-certbot --nginx -d www.projecthealth.com -d projecthealth.com
+certbot --nginx -d www.projecthealth.com -d projecthealth.com -d staging.projecthealth.com
 ```
 
 ### Cloudflare
