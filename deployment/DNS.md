@@ -144,6 +144,15 @@ CNAME  www   YOUR_HOSTING_PROVIDER_TARGET
 CNAME  staging YOUR_STAGING_HOSTING_PROVIDER_TARGET
 ```
 
+For GitHub Pages staging:
+
+```text
+Type   Name     Value
+CNAME  staging  tahaamjad-glitch.github.io
+```
+
+Then open the repository on GitHub, go to Settings -> Pages, choose GitHub Actions as the source, and run the staging deployment workflow.
+
 Common examples:
 
 ```text

@@ -26,6 +26,22 @@ Staging URL:
 https://staging.projecthealth.com
 ```
 
+GitHub Pages staging deployment:
+
+```text
+https://staging.projecthealth.com
+```
+
+DNS record for GitHub Pages staging:
+
+```text
+Type: CNAME
+Name: staging
+Value: tahaamjad-glitch.github.io
+```
+
+After adding the DNS record, open GitHub repository Settings -> Pages and set the source to GitHub Actions. The included workflow deploys the static website build and includes the staging custom domain.
+
 The local development URL `http://127.0.0.1:4174/index.html?domain-final=1#security` corresponds to the production URL:
 
 ```text
