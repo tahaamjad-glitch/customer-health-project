@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vertex AI</title>
+    <link rel="icon" type="image/svg+xml" href="assets/customer-health-monitoring-icon.svg?v=20260518-vertex-ai" />
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/customer-health-monitoring-icon-32.png?v=20260518-vertex-ai" />
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/customer-health-monitoring-icon-180.png?v=20260518-vertex-ai" />
+    <meta name="theme-color" content="#0F172A" />
+    <link rel="canonical" href="https://www.projecthealth.com" />
+    <meta property="og:url" content="https://www.projecthealth.com" />
+    <link rel="preload" as="image" href="assets/professional-color-background.svg?v=20260518-portfolio-rank" />
+    <link rel="stylesheet" href="styles.css?v=20260518-remove-scroll-control" />
+  </head>
+  <body class="auth-locked">
+    <svg class="sprite" aria-hidden="true">
+      <symbol id="icon-brand-health" viewBox="0 0 24 24">
+        <path d="M12 3 19 6v5.1c0 4.1-2.8 7.8-7 9.7-4.2-1.9-7-5.6-7-9.7V6l7-3Z" />
+        <path d="M7.4 12h2.1l1.2-3.2 2.1 6.4 1.4-3.2h2.4" />
+      </symbol>
+      <symbol id="icon-cube" viewBox="0 0 24 24">
+        <path d="m12 2 8 4.5v9L12 20l-8-4.5v-9L12 2Z" />
+        <path d="m4.4 6.8 7.6 4.4 7.6-4.4" />
+        <path d="M12 11.2V20" />
+      </symbol>
+      <symbol id="icon-layers" viewBox="0 0 24 24">
+        <path d="m12 3 8 4.5-8 4.5-8-4.5L12 3Z" />
+        <path d="m4 12 8 4.5 8-4.5" />
+        <path d="m4 16.5 8 4.5 8-4.5" />
+      </symbol>
+      <symbol id="icon-more" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="1" />
+        <circle cx="12" cy="5" r="1" />
+        <circle cx="12" cy="19" r="1" />
+      </symbol>
+      <symbol id="icon-sun" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="4" />
+        <path d="M12 2v2" />
+        <path d="M12 20v2" />
+        <path d="m4.9 4.9 1.4 1.4" />
+        <path d="m17.7 17.7 1.4 1.4" />
+        <path d="M2 12h2" />
+        <path d="M20 12h2" />
+        <path d="m4.9 19.1 1.4-1.4" />
+        <path d="m17.7 6.3 1.4-1.4" />
+      </symbol>
+      <symbol id="icon-activity" viewBox="0 0 24 24">
+        <path d="M3 12h4l2.5-7 5 14 2.5-7h4" />
+      </symbol>
+      <symbol id="icon-alert" viewBox="0 0 24 24">
+        <path d="M12 9v4" />
+        <path d="M12 17h.01" />
+        <path d="M10.3 4.3 2.9 17.1A2 2 0 0 0 4.6 20h14.8a2 2 0 0 0 1.7-2.9L13.7 4.3a2 2 0 0 0-3.4 0Z" />
+      </symbol>
+      <symbol id="icon-bar-chart" viewBox="0 0 24 24">
+        <path d="M4 19V5" />
+        <path d="M4 19h16" />
+        <path d="M8 16V9" />
+        <path d="M12 16V6" />
+        <path d="M16 16v-4" />
+      </symbol>
+      <symbol id="icon-bell" viewBox="0 0 24 24">
+        <path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+        <path d="M13.7 21a2 2 0 0 1-3.4 0" />
+      </symbol>
+      <symbol id="icon-calendar" viewBox="0 0 24 24">
+        <path d="M8 2v4" />
+        <path d="M16 2v4" />
+        <rect x="3" y="4" width="18" height="18" rx="2" />
+        <path d="M3 10h18" />
+      </symbol>
+      <symbol id="icon-check" viewBox="0 0 24 24">
+        <path d="m20 6-11 11-5-5" />
+      </symbol>
+      <symbol id="icon-chevron" viewBox="0 0 24 24">
+        <path d="m9 18 6-6-6-6" />
+      </symbol>
+      <symbol id="icon-download" viewBox="0 0 24 24">
+        <path d="M12 3v12" />
+        <path d="m7 10 5 5 5-5" />
+        <path d="M5 21h14" />
+      </symbol>
+      <symbol id="icon-filter" viewBox="0 0 24 24">
+        <path d="M4 5h16" />
+        <path d="M7 12h10" />
+        <path d="M10 19h4" />
+      </symbol>
+      <symbol id="icon-lock" viewBox="0 0 24 24">
+        <rect x="4" y="11" width="16" height="10" rx="2" />
+        <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+      </symbol>
+      <symbol id="icon-mail" viewBox="0 0 24 24">
+        <rect x="3" y="5" width="18" height="14" rx="2" />
+        <path d="m3 7 9 6 9-6" />
+      </symbol>
+      <symbol id="icon-menu" viewBox="0 0 24 24">
+        <path d="M4 6h16" />
+        <path d="M4 12h16" />
+        <path d="M4 18h16" />
+      </symbol>
+      <symbol id="icon-plus" viewBox="0 0 24 24">
+        <path d="M12 5v14" />
+        <path d="M5 12h14" />
+      </symbol>
+      <symbol id="icon-search" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="7" />
+        <path d="m21 21-4.3-4.3" />
+      </symbol>
+      <symbol id="icon-shield" viewBox="0 0 24 24">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" />
+      </symbol>
+      <symbol id="icon-users" viewBox="0 0 24 24">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+        <circle cx="9" cy="7" r="4" />
+        <path d="M22 21v-2a4 4 0 0 0-3-3.9" />
+        <path d="M16 3.1a4 4 0 0 1 0 7.8" />
+      </symbol>
+    </svg>
+
+    <section class="login-screen" id="login" aria-labelledby="loginTitle">
+      <div class="login-visual">
+        <span class="brand-mark" aria-hidden="true">
+          <svg class="brand-icon"><use href="#icon-brand-health"></use></svg>
+        </span>
+        <p class="eyebrow">Secure access</p>
+        <h1 id="loginTitle">Sign in to Vertex AI</h1>
+        <p>
+          Access customer project health records with your assigned email and password. Visibility is applied automatically after login.
+        </p>
+        <div class="login-proof">
+          <span><svg class="icon"><use href="#icon-shield"></use></svg> Role-based access</span>
+          <span><svg class="icon"><use href="#icon-lock"></use></svg> Email and password only</span>
+          <span><svg class="icon"><use href="#icon-users"></use></svg> Assigned project records</span>
+        </div>
+      </div>
+      <div class="auth-card">
+        <div class="auth-card-head">
+          <div>
+            <p class="eyebrow">Account access</p>
+            <h2 id="authCardTitle">Welcome back</h2>
+          </div>
+          <div class="auth-tabs" role="tablist" aria-label="Authentication mode">
+            <button class="is-active" id="loginTab" type="button" role="tab" aria-controls="loginForm" aria-selected="true" data-auth-tab="login">Log In</button>
+            <button id="registerTab" type="button" role="tab" aria-controls="registerForm" aria-selected="false" data-auth-tab="register">Sign Up</button>
+          </div>
+        </div>
+
+        <form class="auth-form" id="loginForm" autocomplete="on">
+          <label>
+            <span>Email</span>
+            <input id="loginEmail" name="email" type="email" required autocomplete="username" placeholder="you@company.com" />
+          </label>
+          <label>
+            <span>Password</span>
+            <input id="loginPassword" name="password" type="password" required autocomplete="current-password" placeholder="Enter password" />
+          </label>
+          <button class="button primary" type="submit">
+            <svg class="icon"><use href="#icon-lock"></use></svg>
+            Log In
+          </button>
+          <p class="form-status" id="loginStatus" role="status"></p>
+          <div class="demo-credentials">
+            <strong>Demo credentials</strong>
+            <span>admin@projecthealth.test / Admin@123</span>
+            <span>maya@projecthealth.test / Manager@123</span>
+            <span>elena@cafezupas.test / Client@123</span>
+          </div>
+        </form>
+
+        <form class="auth-form register-form" id="registerForm" autocomplete="on" hidden>
+          <div class="auth-form-grid">
+            <label>
+              <span>Full name</span>
+              <input id="registerName" name="name" type="text" required autocomplete="name" placeholder="Your full name" />
+            </label>
+            <label>
+              <span>Work email</span>
+              <input id="registerEmail" name="email" type="email" required autocomplete="email" placeholder="you@company.com" />
+            </label>
+            <label>
+              <span>Organization</span>
+              <input id="registerOrganization" name="organization" type="text" required autocomplete="organization" placeholder="Company or team" />
+            </label>
+            <label>
+              <span>Role</span>
+              <select id="registerRole" name="role" required>
+                <option>Client/User</option>
+                <option>Developer</option>
+                <option>Team Lead</option>
+                <option>Project Manager</option>
+              </select>
+            </label>
+            <label>
+              <span>Project access</span>
+              <select id="registerProject" name="projectId" required></select>
+            </label>
+            <label>
+              <span>Password</span>
+              <input id="registerPassword" name="password" type="password" required autocomplete="new-password" minlength="8" placeholder="Minimum 8 characters" />
+            </label>
+            <label>
+              <span>Confirm password</span>
+              <input id="registerConfirmPassword" name="confirmPassword" type="password" required autocomplete="new-password" minlength="8" placeholder="Repeat password" />
+            </label>
+          </div>
+          <button class="button primary" type="submit">
+            <svg class="icon"><use href="#icon-plus"></use></svg>
+            Create Account
+          </button>
+          <p class="form-status" id="registerStatus" role="status"></p>
+          <p class="auth-note">New accounts are created on the local backend and receive access only to the selected project.</p>
+        </form>
+      </div>
+    </section>
+
+    <header class="site-header">
+      <div class="header-shell">
+        <a class="brand" href="#home" aria-label="Vertex AI home">
+          <span class="brand-mark" aria-hidden="true">
+            <svg class="brand-icon"><use href="#icon-brand-health"></use></svg>
+          </span>
+          <span class="brand-name">Vertex AI</span>
+        </a>
+        <button class="nav-toggle icon-button" id="navToggle" aria-label="Open navigation" aria-expanded="false">
+          <svg class="icon"><use href="#icon-menu"></use></svg>
+        </button>
+        <div class="session-panel" id="sessionPanel">
+          <div>
+            <span id="sessionRole">Signed in</span>
+            <strong id="sessionName">User</strong>
+          </div>
+          <button class="button quiet logout-button" id="logoutButton" type="button">
+            <svg class="icon"><use href="#icon-lock"></use></svg>
+            Log Out
+          </button>
+        </div>
+      </div>
+      <nav class="top-nav" id="topNav" aria-label="Primary navigation">
+        <a href="#dashboard">Dashboard</a>
+        <a href="#projects">Projects</a>
+        <a href="#health-score">Health Metrics</a>
+        <a href="#risk-alerts">Risks</a>
+        <a href="#access-control">Access Control</a>
+        <a href="#reports">Reports</a>
+        <a href="#proposal">Proposal</a>
+        <a href="#security">Security</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" id="home" aria-labelledby="heroTitle">
+        <div class="hero-media" aria-hidden="true"></div>
+        <div class="hero-content">
+          <p class="eyebrow">Vertex AI command center</p>
+          <h1 id="heroTitle">Vertex AI</h1>
+          <p>
+            Manage Signal, REI Blackbook, Cafe Zupas, and every customer delivery record with clear health metrics, ownership, and role-based visibility.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#projects">
+              <svg class="icon"><use href="#icon-activity"></use></svg>
+              Open Projects
+            </a>
+            <a class="button secondary" href="#access-control">
+              <svg class="icon"><use href="#icon-shield"></use></svg>
+              View Access
+            </a>
+          </div>
+        </div>
+        <div class="portfolio-strip" aria-label="Project portfolio highlights">
+          <div>
+            <span>Visible health</span>
+            <strong id="heroHealth">0</strong>
+          </div>
+          <div>
+            <span>Projects</span>
+            <strong id="heroProjects">0</strong>
+          </div>
+          <div>
+            <span>Elevated risks</span>
+            <strong id="heroRisk">0</strong>
+          </div>
+          <div>
+            <span>Delivery confidence</span>
+            <strong id="heroDelivery">0%</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="section dashboard-section ai-dashboard-section" id="dashboard" aria-labelledby="dashboardTitle">
+        <div class="ai-dashboard-shell">
+          <div class="dashboard-toolbar" aria-label="Dashboard tools">
+            <label class="dashboard-search">
+              <svg class="icon"><use href="#icon-search"></use></svg>
+              <input id="dashboardSearch" type="search" placeholder="Search anything..." autocomplete="off" />
+              <span>Ctrl K</span>
+            </label>
+            <div class="dashboard-actions">
+              <button class="icon-button" id="themeToggle" type="button" aria-label="Switch dashboard display theme" aria-pressed="false">
+                <svg class="icon"><use href="#icon-sun"></use></svg>
+              </button>
+              <button class="icon-button notification-button" id="notificationToggle" type="button" aria-label="Open notifications" aria-expanded="false" aria-controls="notificationPanel">
+                <svg class="icon"><use href="#icon-bell"></use></svg>
+                <span class="notification-dot" id="notificationDot" aria-hidden="true"></span>
+              </button>
+              <span class="dashboard-avatar" aria-label="Signed in as Taha Amjad">TA</span>
+              <div class="notification-panel" id="notificationPanel" hidden></div>
+            </div>
+          </div>
+
+          <div class="dashboard-welcome">
+            <div>
+              <p class="eyebrow">Dashboard</p>
+              <h2 id="dashboardTitle">Welcome to Vertex AI</h2>
+              <p>Your all-in-one platform for building, deploying, and monitoring customer delivery models.</p>
+            </div>
+            <div class="dashboard-welcome-actions">
+              <span class="status-pill neutral" id="roleScopePill">All records</span>
+              <a class="button primary dashboard-new-project" href="#projectManagerPanel">
+                <svg class="icon"><use href="#icon-plus"></use></svg>
+                New Project
+                <svg class="icon"><use href="#icon-chevron"></use></svg>
+              </a>
+            </div>
+          </div>
+
+          <div class="metric-grid ai-stat-grid" id="metricGrid"></div>
+
+          <div class="ai-dashboard-layout">
+            <article class="panel ai-panel prediction-panel" id="prediction-overview">
+              <div class="panel-title">
+                <div>
+                  <p class="eyebrow">Prediction Overview</p>
+                  <h3>Model activity trend</h3>
+                </div>
+                <div class="segmented-control" aria-label="Reporting period">
+                  <button class="is-active" data-period="30">30D</button>
+                  <button data-period="60">60D</button>
+                  <button data-period="90">90D</button>
+                </div>
+              </div>
+              <div class="ai-line-chart" id="trendChart" aria-label="Prediction overview chart"></div>
+            </article>
+
+            <article class="panel ai-panel resource-panel" id="resource-usage">
+              <div class="panel-title">
+                <div>
+                  <p class="eyebrow">Resource Usage</p>
+                  <h3>Project workload allocation</h3>
+                </div>
+              </div>
+              <div class="resource-usage-body">
+                <div class="risk-donut resource-donut" id="riskDonut">
+                  <span><strong>0%</strong><small>Used</small></span>
+                </div>
+                <div class="risk-legend resource-legend" id="riskLegend"></div>
+              </div>
+              <div class="renewal-stack resource-total" id="deliveryStack"></div>
+            </article>
+
+            <article class="panel ai-panel deployments-panel" id="deployments">
+              <div class="panel-title">
+                <div>
+                  <p class="eyebrow">Recent Deployments</p>
+                  <h3>Model release history</h3>
+                </div>
+                <a class="record-link" href="#projects">View All</a>
+              </div>
+              <div class="deployment-table-wrap">
+                <table class="deployment-table">
+                  <thead>
+                    <tr>
+                      <th>Model Name</th>
+                      <th>Status</th>
+                      <th>Environment</th>
+                      <th>Deployed On</th>
+                      <th><span class="sr-only">Actions</span></th>
+                    </tr>
+                  </thead>
+                  <tbody id="deploymentRows"></tbody>
+                </table>
+              </div>
+            </article>
+
+            <article class="panel ai-panel activity-panel">
+              <div class="panel-title">
+                <div>
+                  <p class="eyebrow">Activity Feed</p>
+                  <h3>Latest events</h3>
+                </div>
+                <a class="record-link" href="#reports">View All</a>
+              </div>
+              <div class="activity-feed" id="activityFeed"></div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="projects" aria-labelledby="projectsTitle">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Projects</p>
+            <h2 id="projectsTitle">Customer projects and delivery records</h2>
+          </div>
+          <button class="button quiet" id="resetFilters">
+            <svg class="icon"><use href="#icon-filter"></use></svg>
+            Reset Filters
+          </button>
+        </div>
+
+        <div class="filters" aria-label="Project filters">
+          <label class="search-box">
+            <svg class="icon"><use href="#icon-search"></use></svg>
+            <input id="projectSearch" type="search" placeholder="Search projects, clients, owners, or actors" />
+          </label>
+          <label>
+            <span>Status</span>
+            <select id="statusFilter">
+              <option value="All">All statuses</option>
+              <option value="On Track">On Track</option>
+              <option value="Watch">Watch</option>
+              <option value="At Risk">At Risk</option>
+            </select>
+          </label>
+          <label>
+            <span>Risk</span>
+            <select id="riskFilter">
+              <option value="All">All risk levels</option>
+              <option value="Critical">Critical</option>
+              <option value="Elevated">Elevated</option>
+              <option value="Contained">Contained</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="visibility-banner" id="visibilityBanner"></div>
+
+        <div class="customers-layout">
+          <article class="panel table-panel">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Project</th>
+                    <th>Status</th>
+                    <th>Environment</th>
+                    <th>Progress</th>
+                    <th>Health</th>
+                    <th>Risks</th>
+                    <th>Team</th>
+                    <th>Client</th>
+                    <th>Timeline</th>
+                  </tr>
+                </thead>
+                <tbody id="projectRows"></tbody>
+              </table>
+            </div>
+          </article>
+
+          <aside class="panel profile-panel" id="projectProfile" aria-live="polite"></aside>
+        </div>
+
+        <article class="panel manage-panel" id="projectManagerPanel">
+          <div class="panel-title">
+            <div>
+              <p class="eyebrow">Manage</p>
+              <h3>Add customer project</h3>
+            </div>
+            <span class="status-pill neutral" id="createAccessPill">Create access</span>
+          </div>
+          <form class="project-form" id="projectForm">
+            <div class="form-grid">
+              <label>
+                <span>Project name</span>
+                <input name="name" type="text" required placeholder="Customer project" />
+              </label>
+              <label>
+                <span>Client</span>
+                <input name="customer" type="text" required placeholder="Client organization" />
+              </label>
+              <label>
+                <span>Status</span>
+                <select name="status">
+                  <option>On Track</option>
+                  <option>Watch</option>
+                  <option>At Risk</option>
+                </select>
+              </label>
+              <label>
+                <span>Progress</span>
+                <input name="progress" type="number" min="0" max="100" value="35" />
+              </label>
+              <label>
+                <span>Risk level</span>
+                <select name="riskLevel">
+                  <option>Contained</option>
+                  <option>Elevated</option>
+                  <option>Critical</option>
+                </select>
+              </label>
+              <label>
+                <span>Delivery date</span>
+                <input name="deliveryDate" type="date" required />
+              </label>
+              <label>
+                <span>Project Manager</span>
+                <select name="projectManager" id="projectManagerSelect"></select>
+              </label>
+              <label>
+                <span>Team Lead</span>
+                <select name="teamLead" id="teamLeadSelect"></select>
+              </label>
+              <label>
+                <span>Developer</span>
+                <select name="developer" id="developerSelect"></select>
+              </label>
+              <label>
+                <span>Client/User</span>
+                <select name="clientUser" id="clientUserSelect"></select>
+              </label>
+            </div>
+            <button class="button primary" type="submit">
+              <svg class="icon"><use href="#icon-plus"></use></svg>
+              Add Project
+            </button>
+          </form>
+          <p class="form-status" id="projectFormStatus" role="status"></p>
+        </article>
+      </section>
+
+      <section class="section health-section" id="health-score" aria-labelledby="healthTitle">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Health Metrics</p>
+            <h2 id="healthTitle">Score drivers for the selected project</h2>
+          </div>
+          <span class="status-pill neutral" id="scoreProject">Selected project</span>
+        </div>
+
+        <div class="score-layout">
+          <article class="panel score-panel">
+            <div class="score-gauge" id="scoreGauge" style="--score: 82">
+              <span id="scoreValue">82</span>
+              <small>health</small>
+            </div>
+            <div class="score-summary" id="scoreSummary"></div>
+          </article>
+          <article class="panel driver-panel">
+            <div class="panel-title">
+              <div>
+                <p class="eyebrow">Drivers</p>
+                <h3>Weighted project signals</h3>
+              </div>
+            </div>
+            <div class="driver-list" id="driverList"></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section alert-section" id="risk-alerts" aria-labelledby="alertsTitle">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Risks / Issues</p>
+            <h2 id="alertsTitle">Projects needing attention</h2>
+          </div>
+          <span class="status-pill urgent" id="alertCount">0 open</span>
+        </div>
+
+        <div class="alert-list" id="alertList"></div>
+      </section>
+
+      <section class="section access-section" id="access-control" aria-labelledby="accessTitle">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Access Control</p>
+            <h2 id="accessTitle">Actors, responsibilities, and permissions</h2>
+          </div>
+          <span class="status-pill neutral" id="activeRolePill">Role</span>
+        </div>
+
+        <div class="access-grid">
+          <article class="panel role-panel" id="roleOverview"></article>
+          <article class="panel actor-panel">
+            <div class="panel-title">
+              <div>
+                <p class="eyebrow">Actors / Users</p>
+                <h3>Record access directory</h3>
+              </div>
+            </div>
+            <div class="table-wrap actor-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Role</th>
+                    <th>Access level</th>
+                    <th>Responsibilities</th>
+                  </tr>
+                </thead>
+                <tbody id="actorRows"></tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+
+        <article class="panel permission-panel">
+          <div class="panel-title">
+            <div>
+              <p class="eyebrow">Permissions</p>
+              <h3>Role matrix</h3>
+            </div>
+          </div>
+          <div class="permission-grid" id="permissionGrid"></div>
+        </article>
+      </section>
+
+      <section class="section reports-section" id="reports" aria-labelledby="reportsTitle">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Reports</p>
+            <h2 id="reportsTitle">Delivery reporting and project forecast</h2>
+          </div>
+          <button class="button primary" id="exportReport">
+            <svg class="icon"><use href="#icon-download"></use></svg>
+            Export Report
+          </button>
+        </div>
+
+        <div class="reports-grid">
+          <article class="panel report-panel">
+            <div class="panel-title">
+              <div>
+                <p class="eyebrow">Forecast</p>
+                <h3>Delivery confidence</h3>
+              </div>
+            </div>
+            <div class="bar-chart" id="forecastChart"></div>
+          </article>
+
+          <article class="panel report-panel">
+            <div class="panel-title">
+              <div>
+                <p class="eyebrow">Statuses</p>
+                <h3>Project distribution</h3>
+              </div>
+            </div>
+            <div class="segment-report" id="statusReport"></div>
+          </article>
+
+          <article class="panel report-panel">
+            <div class="panel-title">
+              <div>
+                <p class="eyebrow">Executive brief</p>
+                <h3>Delivery focus</h3>
+              </div>
+            </div>
+            <ul class="brief-list" id="briefList"></ul>
+            <p class="report-note" id="reportNote" role="status"></p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section proposal-section" id="proposal" aria-labelledby="proposalTitle">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">AI Escalation Prevention</p>
+            <h2 id="proposalTitle">Escalation prevention proposal with real workflow drivers</h2>
+            <p>
+              Vertex AI monitors timeline, communication, scope, quality, resource, budget, security, support, and visibility signals across Signal, REI Blackbook, and Cafe Zupas to predict escalation risk early.
+            </p>
+          </div>
+          <span class="status-pill neutral" id="proposalScopePill">Workflow mapped</span>
+        </div>
+
+        <div class="proposal-grid">
+          <article class="panel proposal-panel proposal-overview">
+            <div class="panel-title">
+              <div>
+                <p class="eyebrow">Proposal Objective</p>
+                <h3>Prevent timeline, quality, cost, and ownership escalations</h3>
+              </div>
+            </div>
+            <p>
+              The system combines project health, progress, risks/issues, team performance, client satisfaction, delivery confidence, and operational warning signs into an AI-assisted escalation score.
+            </p>
+            <div class="proposal-flow" aria-label="Escalation prevention workflow">
+              <span>Detect</span>
+              <span>Triage</span>
+              <span>Recommend</span>
+              <span>Assign</span>
+              <span>Verify</span>
+            </div>
+          </article>
+
+          <article class="panel proposal-panel">
+            <div class="panel-title">
+              <div>
+                <p class="eyebrow">Access Model</p>
+                <h3>Actors and responsibilities</h3>
+              </div>
+            </div>
+            <div class="proposal-role-list">
+              <span><strong>Admin</strong> tunes thresholds, permissions, and portfolio reporting.</span>
+              <span><strong>Project Manager</strong> owns escalation triage and client communication.</span>
+              <span><strong>Team Lead</strong> confirms delivery blockers and recovery actions.</span>
+              <span><strong>Developer</strong> updates implementation signals and issue notes.</span>
+              <span><strong>Client/User</strong> provides satisfaction feedback and validates visible risks.</span>
+            </div>
+          </article>
+
+          <article class="panel proposal-panel proposal-wide proposal-realtime-panel">
+            <div class="panel-title">
+              <div>
+                <p class="eyebrow">Real-Time Stats</p>
+                <h3>Live model and resource indicators</h3>
+              </div>
+              <span class="status-pill neutral">Live dashboard data</span>
+            </div>
+            <div id="proposalRealtimeStats"></div>
+          </article>
+
+          <article class="panel proposal-panel proposal-wide proposal-driver-panel">
+            <div class="panel-title">
+              <div>
+                <p class="eyebrow">Escalation Reasons</p>
+                <h3>What can trigger a project escalation</h3>
+              </div>
+              <span class="status-pill neutral">20 driver signals</span>
+            </div>
+            <div class="proposal-driver-grid" id="proposalEscalationDrivers"></div>
+          </article>
+
+          <article class="panel proposal-panel proposal-wide">
+            <div class="panel-title">
+              <div>
+                <p class="eyebrow">Project Signal Map</p>
+                <h3>Workflow-specific escalation signals</h3>
+              </div>
+              <span class="status-pill neutral">Live project data</span>
+            </div>
+            <div class="proposal-signal-grid" id="proposalSignalGrid"></div>
+          </article>
+
+          <article class="panel proposal-panel">
+            <div class="panel-title">
+              <div>
+                <p class="eyebrow">AI Logic</p>
+                <h3>Scoring method mapped to escalation causes</h3>
+              </div>
+            </div>
+            <ul class="proposal-check-list">
+              <li><svg class="icon"><use href="#icon-check"></use></svg><span>Flag missed deadlines, delayed approvals, and delivery confidence below 60% as recovery risks.</span></li>
+              <li><svg class="icon"><use href="#icon-check"></use></svg><span>Raise priority when scope changes, unclear requirements, or poor communication slow progress.</span></li>
+              <li><svg class="icon"><use href="#icon-check"></use></svg><span>Escalate quality issues, production incidents, security concerns, or deployment failures to the accountable owner.</span></li>
+              <li><svg class="icon"><use href="#icon-check"></use></svg><span>Track resource, budget, dependency, documentation, and monitoring gaps before they affect the client.</span></li>
+            </ul>
+          </article>
+
+          <article class="panel proposal-panel">
+            <div class="panel-title">
+              <div>
+                <p class="eyebrow">Success Metrics</p>
+                <h3>Driver coverage and pilot outcomes</h3>
+              </div>
+            </div>
+            <div class="proposal-metrics" id="proposalMetrics"></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="contact-section" id="security" aria-labelledby="securityTitle">
+        <div class="contact-copy">
+          <p class="eyebrow">Security</p>
+          <h2 id="securityTitle">Secure project records by role and assignment.</h2>
+          <p>
+            Access is scoped by actor, role, and assigned project so every user sees the right records and controls.
+          </p>
+        </div>
+        <div class="security-list" id="securityList">
+          <a href="https://www.projecthealth.com" target="_blank" rel="noopener noreferrer">
+            <svg class="icon"><use href="#icon-activity"></use></svg> www.projecthealth.com
+          </a>
+          <span><svg class="icon"><use href="#icon-shield"></use></svg> Least-privilege permissions</span>
+          <span><svg class="icon"><use href="#icon-lock"></use></svg> Client-restricted record views</span>
+          <span><svg class="icon"><use href="#icon-users"></use></svg> Assigned owner visibility</span>
+          <span><svg class="icon"><use href="#icon-check"></use></svg> Audit-ready health updates</span>
+        </div>
+      </section>
+    </main>
+
+    <script src="project-health-config.js?v=20260518-remove-scroll-control"></script>
+    <script src="script.js?v=20260518-remove-scroll-control"></script>
+  </body>
+</html>

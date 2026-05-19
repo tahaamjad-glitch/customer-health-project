@@ -1,0 +1,430 @@
+{
+  "actors": [
+    {
+      "id": "admin-olivia",
+      "email": "admin@projecthealth.test",
+      "password": "Admin@123",
+      "name": "Taha Amjad",
+      "role": "Admin",
+      "organization": "PMO",
+      "projectIds": [
+        "all"
+      ],
+      "accessLevel": "All customer project records",
+      "responsibilities": "Owns system configuration, user access, portfolio governance, and executive reporting."
+    },
+    {
+      "id": "pm-maya",
+      "email": "maya@projecthealth.test",
+      "password": "Manager@123",
+      "name": "Maya Chen",
+      "role": "Project Manager",
+      "organization": "Delivery",
+      "projectIds": [
+        "signal",
+        "rei-blackbook"
+      ],
+      "accessLevel": "Signal and REI Blackbook records",
+      "responsibilities": "Maintains delivery health, risk response, client communications, and timeline updates."
+    },
+    {
+      "id": "pm-sam",
+      "email": "sam@projecthealth.test",
+      "password": "Manager@123",
+      "name": "Sam Rivera",
+      "role": "Project Manager",
+      "organization": "Delivery",
+      "projectIds": [
+        "cafe-zupas"
+      ],
+      "accessLevel": "Cafe Zupas records",
+      "responsibilities": "Owns project status, escalations, stakeholder updates, and delivery forecasting."
+    },
+    {
+      "id": "lead-ari",
+      "email": "ari@projecthealth.test",
+      "password": "Lead@123",
+      "name": "Ari Khan",
+      "role": "Team Lead",
+      "organization": "Engineering",
+      "projectIds": [
+        "signal"
+      ],
+      "accessLevel": "Signal delivery records",
+      "responsibilities": "Updates engineering progress, team performance, sprint risks, and implementation blockers."
+    },
+    {
+      "id": "lead-noor",
+      "email": "noor@projecthealth.test",
+      "password": "Lead@123",
+      "name": "Noor Patel",
+      "role": "Team Lead",
+      "organization": "Engineering",
+      "projectIds": [
+        "rei-blackbook"
+      ],
+      "accessLevel": "REI Blackbook delivery records",
+      "responsibilities": "Updates team throughput, integration risks, delivery blockers, and issue resolution."
+    },
+    {
+      "id": "lead-leah",
+      "email": "leah@projecthealth.test",
+      "password": "Lead@123",
+      "name": "Leah Brooks",
+      "role": "Team Lead",
+      "organization": "Engineering",
+      "projectIds": [
+        "cafe-zupas"
+      ],
+      "accessLevel": "Cafe Zupas delivery records",
+      "responsibilities": "Updates task progress, resource constraints, technical issues, and release readiness."
+    },
+    {
+      "id": "dev-alex",
+      "email": "alex@projecthealth.test",
+      "password": "Dev@123",
+      "name": "Alex Lee",
+      "role": "Developer",
+      "organization": "Engineering",
+      "projectIds": [
+        "signal"
+      ],
+      "accessLevel": "Signal implementation records",
+      "responsibilities": "Updates assigned delivery progress and adds implementation issue notes."
+    },
+    {
+      "id": "dev-priya",
+      "email": "priya@projecthealth.test",
+      "password": "Dev@123",
+      "name": "Priya Shah",
+      "role": "Developer",
+      "organization": "Engineering",
+      "projectIds": [
+        "rei-blackbook"
+      ],
+      "accessLevel": "REI Blackbook implementation records",
+      "responsibilities": "Updates integration progress, defects, and technical issue notes."
+    },
+    {
+      "id": "dev-ben",
+      "email": "ben@projecthealth.test",
+      "password": "Dev@123",
+      "name": "Ben Cole",
+      "role": "Developer",
+      "organization": "Engineering",
+      "projectIds": [
+        "cafe-zupas"
+      ],
+      "accessLevel": "Cafe Zupas implementation records",
+      "responsibilities": "Updates assigned build progress and release issue notes."
+    },
+    {
+      "id": "client-jenna",
+      "email": "jenna@signal.test",
+      "password": "Client@123",
+      "name": "Jenna Mills",
+      "role": "Client/User",
+      "organization": "Signal",
+      "projectIds": [
+        "signal"
+      ],
+      "accessLevel": "Signal client-facing records",
+      "responsibilities": "Reviews project summary, timeline, visible risks, and satisfaction feedback."
+    },
+    {
+      "id": "client-marcus",
+      "email": "marcus@reiblackbook.test",
+      "password": "Client@123",
+      "name": "Marcus Reed",
+      "role": "Client/User",
+      "organization": "REI Blackbook",
+      "projectIds": [
+        "rei-blackbook"
+      ],
+      "accessLevel": "REI Blackbook client-facing records",
+      "responsibilities": "Reviews project summary, timeline, visible risks, and satisfaction feedback."
+    },
+    {
+      "id": "client-elena",
+      "email": "elena@cafezupas.test",
+      "password": "Client@123",
+      "name": "Elena Ortiz",
+      "role": "Client/User",
+      "organization": "Cafe Zupas",
+      "projectIds": [
+        "cafe-zupas"
+      ],
+      "accessLevel": "Cafe Zupas client-facing records",
+      "responsibilities": "Reviews project summary, timeline, visible risks, and satisfaction feedback."
+    }
+  ],
+  "projects": [
+    {
+      "id": "signal",
+      "name": "Signal",
+      "customer": "Signal",
+      "status": "On Track",
+      "health": 86,
+      "progress": 74,
+      "teamPerformance": 91,
+      "clientSatisfaction": 86,
+      "deliveryConfidence": 94,
+      "riskLevel": "Contained",
+      "environment": "Production",
+      "portfolioShare": 45,
+      "timeline": {
+        "start": "Feb 03, 2026",
+        "milestone": "Security operations pilot",
+        "delivery": "Jul 31, 2026"
+      },
+      "projectManager": "Maya Chen",
+      "teamLead": "Ari Khan",
+      "developers": [
+        "Alex Lee",
+        "Nadia Park"
+      ],
+      "clientUser": "Jenna Mills",
+      "scope": "AI-powered security service provider platform for patrolling, dedicated shifts, guard operations, live tracking, incidents, billing, and analytics.",
+      "details": {
+        "category": "AI-powered security service provider platform",
+        "summary": "Signal is designed to manage and optimize modern security operations through automation, real-time monitoring, and intelligent resource allocation.",
+        "architecture": "The project is divided into focused modules so patrolling, dedicated shifts, guard operations, tracking, incidents, billing, reporting, and AI monitoring can scale with better performance, maintainability, and user experience.",
+        "serviceTypes": [
+          "Patrolling",
+          "Dedicated Shifts"
+        ],
+        "users": [
+          "Admins",
+          "Clients",
+          "Supervisors",
+          "Security guards"
+        ],
+        "modules": [
+          {
+            "name": "Authentication & User Management",
+            "responsibility": "Handles registration, login, role-based access, and account management for admins, clients, supervisors, and security guards."
+          },
+          {
+            "name": "Guard Management Module",
+            "responsibility": "Manages guard profiles, availability, skills, certifications, and assignments."
+          },
+          {
+            "name": "Dedicated Shift Management",
+            "responsibility": "Schedules and manages fixed security shifts for guards assigned to specific locations or clients."
+          },
+          {
+            "name": "Patrolling Management Module",
+            "responsibility": "Tracks patrol routes, checkpoints, timings, and guard movement during patrol operations."
+          },
+          {
+            "name": "Client Management Module",
+            "responsibility": "Maintains client records, security requirements, assigned guards, and service history."
+          },
+          {
+            "name": "Attendance & Real-Time Tracking",
+            "responsibility": "Monitors guard attendance, check-ins, check-outs, GPS tracking, and live location updates."
+          },
+          {
+            "name": "Incident Reporting System",
+            "responsibility": "Allows guards and supervisors to report incidents, emergencies, and suspicious activity with documentation."
+          },
+          {
+            "name": "Communication & Notifications Module",
+            "responsibility": "Sends alerts, emergency messages, notifications, and shift reminders to relevant users."
+          },
+          {
+            "name": "Billing & Payment Management",
+            "responsibility": "Handles invoices, service charges, payment tracking, and financial reporting."
+          },
+          {
+            "name": "Reports & Analytics Dashboard",
+            "responsibility": "Provides performance reports, patrol summaries, attendance analytics, and security statistics."
+          },
+          {
+            "name": "AI & Monitoring Features",
+            "responsibility": "Uses intelligent analysis to improve security efficiency, threat detection, and operational decision-making."
+          }
+        ],
+        "outcomes": [
+          "Reliable security coverage",
+          "Transparent operations",
+          "Efficient resource allocation",
+          "Faster threat detection"
+        ]
+      },
+      "risks": [
+        "Patrol GPS/checkpoint accuracy must be validated before client rollout",
+        "Dedicated shift scheduling rules need supervisor approval"
+      ],
+      "clientRisks": [
+        "Patrolling routes and dedicated shift coverage rules are being validated with client supervisors"
+      ],
+      "issues": [
+        "Complete guard availability and certification import validation",
+        "Validate live attendance, GPS tracking, and checkpoint timing accuracy",
+        "Finalize billing rules for patrolling and dedicated shifts"
+      ],
+      "nextActions": [
+        "Run security operations pilot for patrolling and dedicated shifts",
+        "Complete incident notification SLA and emergency alert testing"
+      ],
+      "healthTrend": [
+        81,
+        82,
+        83,
+        85,
+        84,
+        86,
+        87,
+        88,
+        89,
+        88,
+        88,
+        90
+      ],
+      "lastUpdated": "May 17, 2026"
+    },
+    {
+      "id": "rei-blackbook",
+      "name": "REI Blackbook",
+      "customer": "REI Blackbook",
+      "status": "Watch",
+      "health": 72,
+      "progress": 58,
+      "teamPerformance": 78,
+      "clientSatisfaction": 69,
+      "deliveryConfidence": 72,
+      "riskLevel": "Elevated",
+      "environment": "UAT",
+      "portfolioShare": 22,
+      "timeline": {
+        "start": "Mar 12, 2026",
+        "milestone": "Integration hardening",
+        "delivery": "Sep 18, 2026"
+      },
+      "projectManager": "Maya Chen",
+      "teamLead": "Noor Patel",
+      "developers": [
+        "Priya Shah",
+        "Owen Brooks"
+      ],
+      "clientUser": "Marcus Reed",
+      "scope": "Retail intelligence platform migration with data normalization, API integration, and analytics rollout.",
+      "risks": [
+        "Legacy data mapping is behind baseline",
+        "Client analytics review has unresolved field-level ownership gaps"
+      ],
+      "clientRisks": [
+        "Data mapping decisions are pending for the next analytics review"
+      ],
+      "issues": [
+        "Resolve duplicate SKU mapping",
+        "Close payment feed retry defects"
+      ],
+      "nextActions": [
+        "Run migration dry run",
+        "Confirm field ownership with client analytics"
+      ],
+      "healthTrend": [
+        76,
+        75,
+        74,
+        73,
+        72,
+        71,
+        72,
+        73,
+        72,
+        72,
+        73,
+        72
+      ],
+      "lastUpdated": "May 14, 2026"
+    },
+    {
+      "id": "cafe-zupas",
+      "name": "Cafe Zupas",
+      "customer": "Cafe Zupas",
+      "status": "At Risk",
+      "health": 58,
+      "progress": 43,
+      "teamPerformance": 63,
+      "clientSatisfaction": 55,
+      "deliveryConfidence": 49,
+      "riskLevel": "Critical",
+      "environment": "Staging",
+      "portfolioShare": 33,
+      "timeline": {
+        "start": "Apr 01, 2026",
+        "milestone": "POS pilot recovery",
+        "delivery": "Aug 22, 2026"
+      },
+      "projectManager": "Sam Rivera",
+      "teamLead": "Leah Brooks",
+      "developers": [
+        "Ben Cole",
+        "Iris Gomez"
+      ],
+      "clientUser": "Elena Ortiz",
+      "scope": "Cafe systems rollout covering POS integration, location readiness, reporting, and training enablement.",
+      "risks": [
+        "POS pilot defects are blocking location expansion",
+        "Training content is not approved for franchise rollout"
+      ],
+      "clientRisks": [
+        "POS pilot defects are blocking location expansion"
+      ],
+      "issues": [
+        "Reproduce receipt sync failure",
+        "Replace missing franchise training assets",
+        "Replan August release milestone"
+      ],
+      "nextActions": [
+        "Open recovery plan with executive sponsor",
+        "Create defect burn-down target for the next sprint"
+      ],
+      "healthTrend": [
+        66,
+        64,
+        63,
+        61,
+        60,
+        59,
+        57,
+        58,
+        56,
+        58,
+        57,
+        58
+      ],
+      "lastUpdated": "May 16, 2026"
+    }
+  ],
+  "acknowledgements": {
+    "admin-olivia": [
+      "signal"
+    ]
+  },
+  "sessions": {
+    "827d8a0f74728e4ccc67be6f3ce9726f6d77594b13cd070e": {
+      "actorId": "admin-olivia",
+      "expiresAt": 1779061684969
+    },
+    "4f05df82b33481955b892a4f5cbad37090119b9a97a8528f": {
+      "actorId": "admin-olivia",
+      "expiresAt": 1779114821150
+    },
+    "0075540dafe98fa841946df0dfc58c22ebcd6f711b07a213": {
+      "actorId": "admin-olivia",
+      "expiresAt": 1779115013817
+    },
+    "d7ee9ee58c55d278c5f484e632af1f1c11171fe9d05ea2ef": {
+      "actorId": "admin-olivia",
+      "expiresAt": 1779154640550
+    },
+    "a9ed589e57eeef6a16e4ff7f1f76414312d71cd61a6fc3d5": {
+      "actorId": "admin-olivia",
+      "expiresAt": 1779200659602
+    }
+  }
+}
