@@ -1,2167 +1,1790 @@
-const roleDefinitions = [
+const $ = (selector) => document.querySelector(selector);
+const $$ = (selector) => Array.from(document.querySelectorAll(selector));
+
+const STORAGE_KEY = "chpa-demo-user";
+const DEMO_PASSWORD = "Demo@2026";
+
+const navItems = [
+  { id: "dashboard", label: "Dashboard" },
+  { id: "portfolio", label: "Portfolio" },
+  { id: "customer-detail", label: "Detail" },
+  { id: "signals", label: "Signals" },
+  { id: "recommendations", label: "Actions" },
+  { id: "scoring", label: "Scoring" },
+  { id: "workflow", label: "Workflow" },
+  { id: "access", label: "Access" },
+  { id: "reports", label: "Reports" }
+];
+
+const demoSteps = [
   {
-    name: "Admin",
-    accessLevel: "Full portfolio access",
-    responsibilities: "Configure users, create and edit all project records, manage permissions, acknowledge risk, and export portfolio reports.",
-    permissions: ["View all records", "Create projects", "Edit all records", "Manage users", "Acknowledge risks", "Export reports"]
+    section: "dashboard",
+    title: "Portfolio risk scan",
+    body: "Open with the executive view: 8 customers, RAG mix, Tier 1 risk, trend, and top Red accounts."
   },
   {
-    name: "Project Manager",
-    accessLevel: "Assigned portfolio access",
-    responsibilities: "Own customer delivery, maintain status, progress, risks, issues, satisfaction, and timelines for assigned projects.",
-    permissions: ["View assigned records", "Create projects", "Edit assigned records", "Acknowledge risks", "Export assigned reports"]
+    section: "portfolio",
+    title: "Click into the portfolio",
+    body: "Use the metric cards or table rows to filter by Green, Amber, Red, Tier, and selected customer."
   },
   {
-    name: "Team Lead",
-    accessLevel: "Assigned delivery access",
-    responsibilities: "Update progress, team performance, delivery blockers, and technical risks for assigned projects.",
-    permissions: ["View assigned records", "Update progress", "Update risks/issues", "Update team performance"]
+    section: "customer-detail",
+    title: "Explain the account",
+    body: "Show Cafe Zupas or Quantum Bank with score breakdown, goals, root causes, evidence, and actions.",
+    customerId: "cafe-zupas"
   },
   {
-    name: "Developer",
-    accessLevel: "Assigned task access",
-    responsibilities: "View assigned project delivery details, update technical progress, and add implementation issue notes.",
-    permissions: ["View assigned records", "Update technical progress", "Add issue notes"]
+    section: "signals",
+    title: "Review signal evidence",
+    body: "Walk through Jira, CSAT, MOM, email, AE notes, severity, confidence, and review status."
   },
   {
-    name: "Client/User",
-    accessLevel: "Own project summary access",
-    responsibilities: "View their project summary, delivery timeline, client-visible risks, and submit satisfaction feedback.",
-    permissions: ["View own project", "Submit satisfaction feedback"]
+    section: "recommendations",
+    title: "Human review gate",
+    body: "Approve, reject, or assign suggested actions so the system stays human-controlled."
+  },
+  {
+    section: "scoring",
+    title: "Tune the scoring model",
+    body: "Show the weighted formula, RAG thresholds, confidence behavior, and guardrails."
+  },
+  {
+    section: "workflow",
+    title: "Integration and agent roadmap",
+    body: "Explain specialized agents, real Jira/email/MOM/CSAT integrations, and the MVP-to-production path."
+  },
+  {
+    section: "access",
+    title: "Role-based access",
+    body: "Switch roles to show navigation, evidence restrictions, approval permissions, and admin controls."
+  },
+  {
+    section: "reports",
+    title: "Close with readiness",
+    body: "End on MVP acceptance, open questions, and discovery artifacts for POD submission."
   }
 ];
 
-const actors = [
+const roleDefinitions = {
+  "C-Level": {
+    scope: "Portfolio-level visibility with sensitive evidence restricted.",
+    nav: ["dashboard", "portfolio", "customer-detail", "recommendations", "reports"],
+    restricted: "Settings, raw email evidence, commercial notes, and integration controls.",
+    permissions: {
+      viewSensitive: false,
+      approveRecommendation: true,
+      assignOwner: true,
+      changeScoring: false,
+      configureIntegrations: false,
+      manageUsers: false,
+      reviewSignals: false,
+      exportReports: true
+    }
+  },
+  "POD Head": {
+    scope: "POD portfolio visibility, risk review, and recovery approval.",
+    nav: ["dashboard", "portfolio", "customer-detail", "signals", "recommendations", "scoring", "workflow", "reports"],
+    restricted: "System integrations and user management unless Admin.",
+    permissions: {
+      viewSensitive: true,
+      approveRecommendation: true,
+      assignOwner: true,
+      changeScoring: true,
+      configureIntegrations: false,
+      manageUsers: false,
+      reviewSignals: true,
+      exportReports: true
+    }
+  },
+  "Account Executive": {
+    scope: "Assigned account relationship, sentiment, and recommendation workflow.",
+    nav: ["dashboard", "portfolio", "customer-detail", "signals", "recommendations", "reports"],
+    restricted: "Global scoring configuration and system integrations.",
+    permissions: {
+      viewSensitive: true,
+      approveRecommendation: true,
+      assignOwner: true,
+      changeScoring: false,
+      configureIntegrations: false,
+      manageUsers: false,
+      reviewSignals: true,
+      exportReports: true
+    }
+  },
+  "Project Manager": {
+    scope: "Assigned project delivery signals, blockers, and commitments.",
+    nav: ["portfolio", "customer-detail", "signals", "recommendations", "reports"],
+    restricted: "Commercial AE notes and global portfolio settings.",
+    permissions: {
+      viewSensitive: "delivery",
+      approveRecommendation: false,
+      assignOwner: true,
+      changeScoring: false,
+      configureIntegrations: false,
+      manageUsers: false,
+      reviewSignals: true,
+      exportReports: true
+    }
+  },
+  "Delivery Manager": {
+    scope: "Delivery patterns, at-risk accounts, and team intervention planning.",
+    nav: ["dashboard", "portfolio", "customer-detail", "recommendations", "reports"],
+    restricted: "Commercial relationship notes and integration settings.",
+    permissions: {
+      viewSensitive: "delivery",
+      approveRecommendation: true,
+      assignOwner: true,
+      changeScoring: false,
+      configureIntegrations: false,
+      manageUsers: false,
+      reviewSignals: false,
+      exportReports: true
+    }
+  },
+  "Customer Success": {
+    scope: "Customer pulse, CSAT patterns, non-response, and proactive recovery.",
+    nav: ["dashboard", "portfolio", "customer-detail", "signals", "recommendations", "reports"],
+    restricted: "System integrations unless Admin.",
+    permissions: {
+      viewSensitive: true,
+      approveRecommendation: true,
+      assignOwner: true,
+      changeScoring: false,
+      configureIntegrations: false,
+      manageUsers: false,
+      reviewSignals: true,
+      exportReports: true
+    }
+  },
+  "QA / Analyst": {
+    scope: "Signal evidence validation, confidence review, and scenario testing.",
+    nav: ["portfolio", "customer-detail", "signals", "workflow", "reports"],
+    restricted: "Approval actions and configuration changes unless assigned.",
+    permissions: {
+      viewSensitive: "reviewed",
+      approveRecommendation: false,
+      assignOwner: false,
+      changeScoring: false,
+      configureIntegrations: false,
+      manageUsers: false,
+      reviewSignals: true,
+      exportReports: true
+    }
+  },
+  Admin: {
+    scope: "All screens, demo configuration, and full system controls.",
+    nav: navItems.map((item) => item.id),
+    restricted: "None in this MVP demo, subject to company policy.",
+    permissions: {
+      viewSensitive: true,
+      approveRecommendation: true,
+      assignOwner: true,
+      changeScoring: true,
+      configureIntegrations: true,
+      manageUsers: true,
+      reviewSignals: true,
+      exportReports: true
+    }
+  }
+};
+
+const demoUsers = [
   {
-    id: "admin-olivia",
-    email: "admin@projecthealth.test",
+    id: "executive",
+    name: "Ayesha Mir",
+    email: "executive@tkxel.com",
+    role: "C-Level",
+    department: "Leadership",
+    assignedCustomerIds: ["all"]
+  },
+  {
+    id: "pod-head",
+    name: "Hamza Qureshi",
+    email: "pod.head@tkxel.com",
+    role: "POD Head",
+    department: "AI Delivery POD",
+    assignedCustomerIds: ["all"]
+  },
+  {
+    id: "ae",
+    name: "Sara Khan",
+    email: "ae@tkxel.com",
+    role: "Account Executive",
+    department: "Accounts",
+    assignedCustomerIds: ["cafe-zupas", "quantum-bank", "northstar-health", "urbannest"]
+  },
+  {
+    id: "pm",
+    name: "Bilal Ahmed",
+    email: "pm@tkxel.com",
+    role: "Project Manager",
+    department: "Delivery",
+    assignedCustomerIds: ["cafe-zupas", "rei-blackbook", "signal"]
+  },
+  {
+    id: "dm",
+    name: "Mariam Zafar",
+    email: "dm@tkxel.com",
+    role: "Delivery Manager",
+    department: "Delivery",
+    assignedCustomerIds: ["cafe-zupas", "rei-blackbook", "atlas-manufacturing", "signal"]
+  },
+  {
+    id: "cs",
+    name: "Noor Fatima",
+    email: "cs@tkxel.com",
+    role: "Customer Success",
+    department: "Customer Success",
+    assignedCustomerIds: ["all"]
+  },
+  {
+    id: "qa",
+    name: "Zain Abbas",
+    email: "qa@tkxel.com",
+    role: "QA / Analyst",
+    department: "Quality",
+    assignedCustomerIds: ["all"]
+  },
+  {
+    id: "admin",
     name: "Taha Amjad",
+    email: "admin@tkxel.com",
     role: "Admin",
-    organization: "PMO",
-    projectIds: ["all"],
-    accessLevel: "All customer project records",
-    responsibilities: "Owns system configuration, user access, portfolio governance, and executive reporting."
-  },
-  {
-    id: "pm-maya",
-    email: "maya@projecthealth.test",
-    name: "Maya Chen",
-    role: "Project Manager",
-    organization: "Delivery",
-    projectIds: ["signal", "rei-blackbook"],
-    accessLevel: "Signal and REI Blackbook records",
-    responsibilities: "Maintains delivery health, risk response, client communications, and timeline updates."
-  },
-  {
-    id: "pm-sam",
-    email: "sam@projecthealth.test",
-    name: "Sam Rivera",
-    role: "Project Manager",
-    organization: "Delivery",
-    projectIds: ["cafe-zupas"],
-    accessLevel: "Cafe Zupas records",
-    responsibilities: "Owns project status, escalations, stakeholder updates, and delivery forecasting."
-  },
-  {
-    id: "lead-ari",
-    email: "ari@projecthealth.test",
-    name: "Ari Khan",
-    role: "Team Lead",
-    organization: "Engineering",
-    projectIds: ["signal"],
-    accessLevel: "Signal delivery records",
-    responsibilities: "Updates engineering progress, team performance, sprint risks, and implementation blockers."
-  },
-  {
-    id: "lead-noor",
-    email: "noor@projecthealth.test",
-    name: "Noor Patel",
-    role: "Team Lead",
-    organization: "Engineering",
-    projectIds: ["rei-blackbook"],
-    accessLevel: "REI Blackbook delivery records",
-    responsibilities: "Updates team throughput, integration risks, delivery blockers, and issue resolution."
-  },
-  {
-    id: "lead-leah",
-    email: "leah@projecthealth.test",
-    name: "Leah Brooks",
-    role: "Team Lead",
-    organization: "Engineering",
-    projectIds: ["cafe-zupas"],
-    accessLevel: "Cafe Zupas delivery records",
-    responsibilities: "Updates task progress, resource constraints, technical issues, and release readiness."
-  },
-  {
-    id: "dev-alex",
-    email: "alex@projecthealth.test",
-    name: "Alex Lee",
-    role: "Developer",
-    organization: "Engineering",
-    projectIds: ["signal"],
-    accessLevel: "Signal implementation records",
-    responsibilities: "Updates assigned delivery progress and adds implementation issue notes."
-  },
-  {
-    id: "dev-priya",
-    email: "priya@projecthealth.test",
-    name: "Priya Shah",
-    role: "Developer",
-    organization: "Engineering",
-    projectIds: ["rei-blackbook"],
-    accessLevel: "REI Blackbook implementation records",
-    responsibilities: "Updates integration progress, defects, and technical issue notes."
-  },
-  {
-    id: "dev-ben",
-    email: "ben@projecthealth.test",
-    name: "Ben Cole",
-    role: "Developer",
-    organization: "Engineering",
-    projectIds: ["cafe-zupas"],
-    accessLevel: "Cafe Zupas implementation records",
-    responsibilities: "Updates assigned build progress and release issue notes."
-  },
-  {
-    id: "client-jenna",
-    email: "jenna@signal.test",
-    name: "Jenna Mills",
-    role: "Client/User",
-    organization: "Signal",
-    projectIds: ["signal"],
-    accessLevel: "Signal client-facing records",
-    responsibilities: "Reviews project summary, timeline, visible risks, and satisfaction feedback."
-  },
-  {
-    id: "client-marcus",
-    email: "marcus@reiblackbook.test",
-    name: "Marcus Reed",
-    role: "Client/User",
-    organization: "REI Blackbook",
-    projectIds: ["rei-blackbook"],
-    accessLevel: "REI Blackbook client-facing records",
-    responsibilities: "Reviews project summary, timeline, visible risks, and satisfaction feedback."
-  },
-  {
-    id: "client-elena",
-    email: "elena@cafezupas.test",
-    name: "Elena Ortiz",
-    role: "Client/User",
-    organization: "Cafe Zupas",
-    projectIds: ["cafe-zupas"],
-    accessLevel: "Cafe Zupas client-facing records",
-    responsibilities: "Reviews project summary, timeline, visible risks, and satisfaction feedback."
+    department: "Platform",
+    assignedCustomerIds: ["all"]
   }
 ];
 
-let projects = [
+let scoringWeights = {
+  delivery: 25,
+  sentiment: 20,
+  csat: 15,
+  escalation: 15,
+  goal: 15,
+  responsiveness: 5,
+  relationship: 5
+};
+
+const scoreLabels = {
+  delivery: "Delivery Health",
+  sentiment: "Customer Sentiment",
+  csat: "CSAT",
+  escalation: "Escalation",
+  goal: "Goal Alignment",
+  responsiveness: "Responsiveness",
+  relationship: "Relationship Confidence"
+};
+
+const customers = [
   {
-    id: "signal",
-    name: "Signal",
-    customer: "Signal",
-    status: "On Track",
-    health: 88,
-    progress: 74,
-    teamPerformance: 91,
-    clientSatisfaction: 86,
-    deliveryConfidence: 94,
-    riskLevel: "Contained",
-    environment: "Production",
-    portfolioShare: 45,
-    timeline: {
-      start: "Feb 03, 2026",
-      milestone: "Security operations pilot",
-      delivery: "Jul 31, 2026"
-    },
-    projectManager: "Maya Chen",
-    teamLead: "Ari Khan",
-    developers: ["Alex Lee", "Nadia Park"],
-    clientUser: "Jenna Mills",
-    scope: "AI-powered security service provider platform for patrolling, dedicated shifts, guard operations, live tracking, incidents, billing, and analytics.",
-    details: {
-      category: "AI-powered security service provider platform",
-      summary: "Signal is designed to manage and optimize modern security operations through automation, real-time monitoring, and intelligent resource allocation.",
-      architecture: "The project is divided into focused modules so patrolling, dedicated shifts, guard operations, tracking, incidents, billing, reporting, and AI monitoring can scale with better performance, maintainability, and user experience.",
-      serviceTypes: ["Patrolling", "Dedicated Shifts"],
-      users: ["Admins", "Clients", "Supervisors", "Security guards"],
-      modules: [
-        { name: "Authentication & User Management", responsibility: "Handles registration, login, role-based access, and account management for admins, clients, supervisors, and security guards." },
-        { name: "Guard Management Module", responsibility: "Manages guard profiles, availability, skills, certifications, and assignments." },
-        { name: "Dedicated Shift Management", responsibility: "Schedules and manages fixed security shifts for guards assigned to specific locations or clients." },
-        { name: "Patrolling Management Module", responsibility: "Tracks patrol routes, checkpoints, timings, and guard movement during patrol operations." },
-        { name: "Client Management Module", responsibility: "Maintains client records, security requirements, assigned guards, and service history." },
-        { name: "Attendance & Real-Time Tracking", responsibility: "Monitors guard attendance, check-ins, check-outs, GPS tracking, and live location updates." },
-        { name: "Incident Reporting System", responsibility: "Allows guards and supervisors to report incidents, emergencies, and suspicious activity with documentation." },
-        { name: "Communication & Notifications Module", responsibility: "Sends alerts, emergency messages, notifications, and shift reminders to relevant users." },
-        { name: "Billing & Payment Management", responsibility: "Handles invoices, service charges, payment tracking, and financial reporting." },
-        { name: "Reports & Analytics Dashboard", responsibility: "Provides performance reports, patrol summaries, attendance analytics, and security statistics." },
-        { name: "AI & Monitoring Features", responsibility: "Uses intelligent analysis to improve security efficiency, threat detection, and operational decision-making." }
-      ],
-      outcomes: ["Reliable security coverage", "Transparent operations", "Efficient resource allocation", "Faster threat detection"]
-    },
-    risks: ["Patrol GPS/checkpoint accuracy must be validated before client rollout", "Dedicated shift scheduling rules need supervisor approval"],
-    clientRisks: ["Patrolling routes and dedicated shift coverage rules are being validated with client supervisors"],
-    issues: ["Complete guard availability and certification import validation", "Validate live attendance, GPS tracking, and checkpoint timing accuracy", "Finalize billing rules for patrolling and dedicated shifts"],
-    nextActions: ["Run security operations pilot for patrolling and dedicated shifts", "Complete incident notification SLA and emergency alert testing"],
-    healthTrend: [81, 82, 83, 85, 84, 86, 87, 88, 89, 88, 88, 90],
-    lastUpdated: "May 15, 2026"
+    id: "cafe-zupas",
+    name: "Cafe Zupas",
+    tier: "Tier 1",
+    project: "POS Pilot Recovery",
+    accountOwner: "Sara Khan",
+    projectManager: "Bilal Ahmed",
+    podHead: "Hamza Qureshi",
+    domain: "Food Tech",
+    engagementType: "Managed delivery",
+    currentStatus: "Active escalation",
+    summary: "POS pilot defects and delayed training approvals are slowing rollout confidence for franchise expansion.",
+    primaryRisk: "POS pilot defects are blocking location expansion.",
+    goals: ["Stabilize POS pilot", "Approve franchise training content", "Restore August release confidence"],
+    successCriteria: ["Receipt sync defect closed", "Training package approved", "Recovery plan accepted by sponsor"],
+    expectedOutcomes: ["Location expansion resumes", "Executive confidence restored", "Escalation pressure reduced"],
+    breakdown: { delivery: 39, sentiment: 42, csat: 45, escalation: 25, goal: 46, responsiveness: 55, relationship: 48 },
+    trend: [66, 64, 61, 58, 55, 51, 47, 43, 42, 40, 41, 42],
+    rootCauses: [
+      { title: "Pilot blocker is customer-visible", detail: "Receipt sync and release replanning have appeared in Jira, MOMs, and escalation notes." },
+      { title: "Recovery ownership is fragmented", detail: "Training approval, POS defects, and executive sponsor updates are split across different owners." },
+      { title: "Sentiment has turned negative", detail: "Recent email summaries show concern about confidence and expansion readiness." }
+    ]
+  },
+  {
+    id: "quantum-bank",
+    name: "Quantum Bank",
+    tier: "Tier 1",
+    project: "Compliance Data Modernization",
+    accountOwner: "Sara Khan",
+    projectManager: "Ibrahim Malik",
+    podHead: "Hamza Qureshi",
+    domain: "Fintech",
+    engagementType: "Dedicated team",
+    currentStatus: "Executive watch",
+    summary: "Compliance sign-off is stuck and customer executives are questioning governance evidence.",
+    primaryRisk: "Compliance evidence is incomplete for the next steering committee.",
+    goals: ["Complete audit evidence pack", "Unblock compliance owner sign-off", "Protect renewal expansion conversation"],
+    successCriteria: ["Evidence pack accepted", "Compliance owner confirms scope", "Steering committee actions closed"],
+    expectedOutcomes: ["Reduced executive escalation", "Renewal confidence protected", "Clear data governance baseline"],
+    breakdown: { delivery: 52, sentiment: 34, csat: 30, escalation: 20, goal: 42, responsiveness: 30, relationship: 38 },
+    trend: [63, 61, 59, 56, 52, 48, 44, 40, 37, 35, 36, 38],
+    rootCauses: [
+      { title: "Escalation severity is high", detail: "A PMO escalation and low CSAT response arrived in the same week." },
+      { title: "Responsiveness is weak", detail: "Two compliance questions have waited more than five business days." },
+      { title: "Goal alignment is unclear", detail: "The business outcome is audit readiness, but delivery artifacts still focus on migration progress." }
+    ]
   },
   {
     id: "rei-blackbook",
     name: "REI Blackbook",
-    customer: "REI Blackbook",
-    status: "Watch",
-    health: 72,
-    progress: 58,
-    teamPerformance: 78,
-    clientSatisfaction: 69,
-    deliveryConfidence: 72,
-    riskLevel: "Elevated",
-    environment: "UAT",
-    portfolioShare: 22,
-    timeline: {
-      start: "Mar 12, 2026",
-      milestone: "Integration hardening",
-      delivery: "Sep 18, 2026"
-    },
-    projectManager: "Maya Chen",
-    teamLead: "Noor Patel",
-    developers: ["Priya Shah", "Owen Brooks"],
-    clientUser: "Marcus Reed",
-    scope: "Retail intelligence platform migration with data normalization, API integration, and analytics rollout.",
-    risks: ["Legacy data mapping is behind baseline", "Client analytics review has unresolved field-level ownership gaps"],
-    clientRisks: ["Data mapping decisions are pending for the next analytics review"],
-    issues: ["Resolve duplicate SKU mapping", "Close payment feed retry defects"],
-    nextActions: ["Run migration dry run", "Confirm field ownership with client analytics"],
-    healthTrend: [76, 75, 74, 73, 72, 71, 72, 73, 72, 72, 73, 72],
-    lastUpdated: "May 14, 2026"
+    tier: "Tier 2",
+    project: "Retail Intelligence Migration",
+    accountOwner: "Omar Rafiq",
+    projectManager: "Bilal Ahmed",
+    podHead: "Hamza Qureshi",
+    domain: "Retail",
+    engagementType: "Project delivery",
+    currentStatus: "Watch",
+    summary: "Legacy data mapping and analytics ownership gaps are holding the migration below green status.",
+    primaryRisk: "Field-level ownership is unresolved for analytics review.",
+    goals: ["Complete migration dry run", "Resolve duplicate SKU mapping", "Confirm analytics ownership"],
+    successCriteria: ["Dry run below defect threshold", "Mapping ownership signed off", "Retry defects closed"],
+    expectedOutcomes: ["Migration confidence improves", "Analytics review progresses", "UAT readiness restored"],
+    breakdown: { delivery: 63, sentiment: 68, csat: 70, escalation: 74, goal: 61, responsiveness: 69, relationship: 72 },
+    trend: [76, 75, 73, 72, 70, 68, 66, 65, 64, 65, 66, 66],
+    rootCauses: [
+      { title: "Delivery is lagging the milestone", detail: "Data mapping is behind baseline and has repeated in Jira plus MOM summaries." },
+      { title: "Customer goals need revalidation", detail: "The customer success criteria emphasize analytics usability, not only migration completion." }
+    ]
   },
   {
-    id: "cafe-zupas",
-    name: "Cafe Zupas",
-    customer: "Cafe Zupas",
-    status: "At Risk",
-    health: 58,
-    progress: 43,
-    teamPerformance: 63,
-    clientSatisfaction: 55,
-    deliveryConfidence: 49,
-    riskLevel: "Critical",
-    environment: "Staging",
-    portfolioShare: 33,
-    timeline: {
-      start: "Apr 01, 2026",
-      milestone: "POS pilot recovery",
-      delivery: "Aug 22, 2026"
-    },
-    projectManager: "Sam Rivera",
-    teamLead: "Leah Brooks",
-    developers: ["Ben Cole", "Iris Gomez"],
-    clientUser: "Elena Ortiz",
-    scope: "Cafe systems rollout covering POS integration, location readiness, reporting, and training enablement.",
-    risks: ["POS pilot defects are blocking location expansion", "Training content is not approved for franchise rollout"],
-    clientRisks: ["POS pilot defects are blocking location expansion"],
-    issues: ["Reproduce receipt sync failure", "Replace missing franchise training assets", "Replan August release milestone"],
-    nextActions: ["Open recovery plan with executive sponsor", "Create defect burn-down target for the next sprint"],
-    healthTrend: [66, 64, 63, 61, 60, 59, 57, 58, 56, 58, 57, 58],
-    lastUpdated: "May 16, 2026"
+    id: "northstar-health",
+    name: "Northstar Health",
+    tier: "Tier 1",
+    project: "Patient Portal Expansion",
+    accountOwner: "Sara Khan",
+    projectManager: "Amina Farooq",
+    podHead: "Hamza Qureshi",
+    domain: "Healthcare",
+    engagementType: "Product pod",
+    currentStatus: "Needs attention",
+    summary: "A security review delay and muted customer responses suggest the portal launch needs proactive alignment.",
+    primaryRisk: "Security questions remain open before launch readiness review.",
+    goals: ["Complete security review", "Align launch readiness criteria", "Improve stakeholder responsiveness"],
+    successCriteria: ["Security questions closed", "Launch plan accepted", "Weekly stakeholder response rate above 80%"],
+    expectedOutcomes: ["Launch confidence improves", "Stakeholders regain trust", "Clinical rollout stays on track"],
+    breakdown: { delivery: 58, sentiment: 55, csat: 63, escalation: 66, goal: 59, responsiveness: 48, relationship: 61 },
+    trend: [72, 70, 68, 66, 64, 62, 60, 58, 59, 60, 61, 60],
+    rootCauses: [
+      { title: "Non-response is a warning signal", detail: "CSAT and email replies have slowed while the security milestone is active." },
+      { title: "Security evidence is incomplete", detail: "Open questions from the customer security team are affecting readiness confidence." }
+    ]
+  },
+  {
+    id: "urbannest",
+    name: "UrbanNest Realty",
+    tier: "Tier 2",
+    project: "Broker Experience Platform",
+    accountOwner: "Sara Khan",
+    projectManager: "Mehak Ali",
+    podHead: "Hamza Qureshi",
+    domain: "Real Estate",
+    engagementType: "Managed delivery",
+    currentStatus: "Watch",
+    summary: "Relationship sentiment is weakening because demo expectations and backlog prioritization are drifting.",
+    primaryRisk: "Demo expectations are not aligned with current sprint scope.",
+    goals: ["Reset demo scope", "Prioritize broker workflow gaps", "Clarify acceptance criteria"],
+    successCriteria: ["Demo scope approved", "Top five broker gaps triaged", "Acceptance criteria added to backlog"],
+    expectedOutcomes: ["Reduced demo friction", "Clear sprint priorities", "Better AE confidence"],
+    breakdown: { delivery: 74, sentiment: 62, csat: 66, escalation: 78, goal: 63, responsiveness: 70, relationship: 62 },
+    trend: [80, 79, 77, 76, 74, 73, 71, 70, 69, 68, 67, 67],
+    rootCauses: [
+      { title: "Expectation drift", detail: "AE notes show customer expectations exceed the current sprint demo package." },
+      { title: "Backlog language is unclear", detail: "Acceptance criteria for broker workflows need sharper business wording." }
+    ]
+  },
+  {
+    id: "signal",
+    name: "Signal",
+    tier: "Tier 2",
+    project: "Security Operations Platform",
+    accountOwner: "Omar Rafiq",
+    projectManager: "Bilal Ahmed",
+    podHead: "Hamza Qureshi",
+    domain: "Security Services",
+    engagementType: "Dedicated team",
+    currentStatus: "Healthy",
+    summary: "Delivery confidence is strong, sprint blockers are contained, and the customer is engaged in pilot validation.",
+    primaryRisk: "Checkpoint accuracy still needs validation before broader rollout.",
+    goals: ["Validate checkpoint accuracy", "Complete pilot readiness", "Publish incident notification SLA"],
+    successCriteria: ["Supervisor validation passed", "Pilot checklist complete", "SLA accepted"],
+    expectedOutcomes: ["Operational pilot succeeds", "Customer expands coverage", "Trust remains high"],
+    breakdown: { delivery: 88, sentiment: 86, csat: 84, escalation: 92, goal: 83, responsiveness: 91, relationship: 87 },
+    trend: [79, 80, 81, 83, 84, 84, 85, 86, 86, 87, 86, 86],
+    rootCauses: [
+      { title: "Healthy but monitored", detail: "A validation risk exists, but customer sentiment and delivery confidence are stable." }
+    ]
+  },
+  {
+    id: "atlas-manufacturing",
+    name: "Atlas Manufacturing",
+    tier: "Tier 3",
+    project: "Factory Analytics Rollout",
+    accountOwner: "Omar Rafiq",
+    projectManager: "Mariam Zafar",
+    podHead: "Hamza Qureshi",
+    domain: "Manufacturing",
+    engagementType: "Project delivery",
+    currentStatus: "Healthy",
+    summary: "Factory analytics rollout is progressing with stable CSAT and clear goal alignment.",
+    primaryRisk: "Data refresh automation needs production verification.",
+    goals: ["Verify production refresh", "Complete dashboard handover", "Train plant managers"],
+    successCriteria: ["Refresh passes monitoring", "Handover accepted", "Training attendance above 90%"],
+    expectedOutcomes: ["Analytics adoption increases", "Plant managers self-serve insights", "Support load stays low"],
+    breakdown: { delivery: 82, sentiment: 80, csat: 85, escalation: 90, goal: 79, responsiveness: 82, relationship: 80 },
+    trend: [76, 77, 78, 78, 79, 80, 81, 82, 82, 83, 82, 82],
+    rootCauses: [
+      { title: "Low risk with one verification item", detail: "The account is healthy, pending production refresh validation." }
+    ]
+  },
+  {
+    id: "meridian-retail",
+    name: "Meridian Retail",
+    tier: "Tier 3",
+    project: "Loyalty Insights MVP",
+    accountOwner: "Noor Fatima",
+    projectManager: "Amina Farooq",
+    podHead: "Hamza Qureshi",
+    domain: "Retail",
+    engagementType: "MVP build",
+    currentStatus: "Healthy",
+    summary: "The MVP is on track with clear business outcomes and positive customer feedback from the latest review.",
+    primaryRisk: "Data science handoff must stay aligned with launch metrics.",
+    goals: ["Finalize loyalty dashboard", "Confirm launch metrics", "Package data science handoff"],
+    successCriteria: ["Dashboard accepted", "Metrics signed off", "Handoff pack complete"],
+    expectedOutcomes: ["MVP launch stays on track", "Marketing team sees clear insight value", "Expansion path remains open"],
+    breakdown: { delivery: 78, sentiment: 82, csat: 80, escalation: 88, goal: 77, responsiveness: 79, relationship: 82 },
+    trend: [71, 72, 74, 75, 76, 77, 78, 78, 79, 78, 79, 79],
+    rootCauses: [
+      { title: "Healthy launch path", detail: "Customer feedback is positive and launch criteria are understood." }
+    ]
   }
 ];
 
+let signals = [
+  {
+    id: "sig-001",
+    customerId: "cafe-zupas",
+    source: "Jira",
+    type: "Delivery blocker",
+    severity: "Critical",
+    sentiment: "Negative",
+    risk: "Receipt sync defect is blocking location expansion.",
+    confidence: 94,
+    status: "Needs review",
+    date: "May 21, 2026",
+    evidence: "Jira blocker tagged release-critical for POS pilot expansion.",
+    sensitive: false,
+    sensitiveType: "delivery"
+  },
+  {
+    id: "sig-002",
+    customerId: "cafe-zupas",
+    source: "Email Summary",
+    type: "Customer concern",
+    severity: "High",
+    sentiment: "Negative",
+    risk: "Customer sponsor questioned confidence in August milestone.",
+    confidence: 89,
+    status: "Needs review",
+    date: "May 20, 2026",
+    evidence: "Approved shared-mailbox summary mentions loss of confidence and request for recovery plan.",
+    sensitive: true,
+    sensitiveType: "email"
+  },
+  {
+    id: "sig-003",
+    customerId: "quantum-bank",
+    source: "Escalation Log",
+    type: "Executive escalation",
+    severity: "Critical",
+    sentiment: "Negative",
+    risk: "Compliance evidence is incomplete for steering committee.",
+    confidence: 96,
+    status: "Needs review",
+    date: "May 21, 2026",
+    evidence: "PMO board escalation opened by customer compliance sponsor.",
+    sensitive: true,
+    sensitiveType: "commercial"
+  },
+  {
+    id: "sig-004",
+    customerId: "quantum-bank",
+    source: "CSAT",
+    type: "Low score",
+    severity: "High",
+    sentiment: "Negative",
+    risk: "CSAT score dropped to 2 out of 5 after audit-readiness review.",
+    confidence: 92,
+    status: "Reviewed",
+    date: "May 19, 2026",
+    evidence: "Survey response cites unclear ownership and slow governance evidence.",
+    sensitive: false,
+    sensitiveType: "relationship"
+  },
+  {
+    id: "sig-005",
+    customerId: "rei-blackbook",
+    source: "MOM",
+    type: "Commitment risk",
+    severity: "Medium",
+    sentiment: "Neutral",
+    risk: "Analytics ownership is unresolved for field-level mapping.",
+    confidence: 82,
+    status: "Reviewed",
+    date: "May 18, 2026",
+    evidence: "Meeting notes capture pending owner for SKU mapping decisions.",
+    sensitive: false,
+    sensitiveType: "delivery"
+  },
+  {
+    id: "sig-006",
+    customerId: "northstar-health",
+    source: "Email Summary",
+    type: "Non-response",
+    severity: "Medium",
+    sentiment: "Negative",
+    risk: "Security questions have waited more than five business days.",
+    confidence: 78,
+    status: "Needs review",
+    date: "May 20, 2026",
+    evidence: "Approved mailbox summary shows two unanswered security follow-ups.",
+    sensitive: true,
+    sensitiveType: "email"
+  },
+  {
+    id: "sig-007",
+    customerId: "urbannest",
+    source: "AE Note",
+    type: "Relationship context",
+    severity: "Medium",
+    sentiment: "Negative",
+    risk: "Customer expectations exceed current demo scope.",
+    confidence: 81,
+    status: "Needs review",
+    date: "May 17, 2026",
+    evidence: "AE note says sponsor expected broker workflow automation in this demo.",
+    sensitive: true,
+    sensitiveType: "relationship"
+  },
+  {
+    id: "sig-008",
+    customerId: "signal",
+    source: "Jira",
+    type: "Validation task",
+    severity: "Low",
+    sentiment: "Neutral",
+    risk: "Checkpoint accuracy needs supervisor validation.",
+    confidence: 86,
+    status: "Reviewed",
+    date: "May 16, 2026",
+    evidence: "Jira task remains open but is assigned and on schedule.",
+    sensitive: false,
+    sensitiveType: "delivery"
+  },
+  {
+    id: "sig-009",
+    customerId: "atlas-manufacturing",
+    source: "CSAT",
+    type: "Positive feedback",
+    severity: "Low",
+    sentiment: "Positive",
+    risk: "No immediate dissatisfaction signal.",
+    confidence: 88,
+    status: "Reviewed",
+    date: "May 15, 2026",
+    evidence: "Plant manager rated dashboard usefulness 4 out of 5.",
+    sensitive: false,
+    sensitiveType: "relationship"
+  },
+  {
+    id: "sig-010",
+    customerId: "meridian-retail",
+    source: "MOM",
+    type: "Goal alignment",
+    severity: "Low",
+    sentiment: "Positive",
+    risk: "Launch metrics were accepted in weekly review.",
+    confidence: 83,
+    status: "Reviewed",
+    date: "May 14, 2026",
+    evidence: "Meeting notes confirm marketing launch metrics and handoff package.",
+    sensitive: false,
+    sensitiveType: "delivery"
+  }
+];
+
+let recommendations = [
+  {
+    id: "rec-cafe",
+    customerId: "cafe-zupas",
+    riskLevel: "Red",
+    action: "Open executive recovery plan with sponsor, PM, AE, and Delivery Manager.",
+    reason: "Critical delivery blocker and negative sponsor sentiment are both active.",
+    owner: "Sara Khan",
+    dueDate: "May 24, 2026",
+    status: "Pending review",
+    approvalRequired: true,
+    reviewer: ""
+  },
+  {
+    id: "rec-quantum",
+    customerId: "quantum-bank",
+    riskLevel: "Red",
+    action: "Create audit evidence pack and schedule compliance owner alignment.",
+    reason: "Escalation severity is high and CSAT dropped after governance review.",
+    owner: "Ibrahim Malik",
+    dueDate: "May 23, 2026",
+    status: "Pending review",
+    approvalRequired: true,
+    reviewer: ""
+  },
+  {
+    id: "rec-rei",
+    customerId: "rei-blackbook",
+    riskLevel: "Amber",
+    action: "Run migration dry run and confirm analytics field ownership.",
+    reason: "Delivery health and goal alignment are the lowest score drivers.",
+    owner: "Bilal Ahmed",
+    dueDate: "May 27, 2026",
+    status: "In progress",
+    approvalRequired: false,
+    reviewer: "Hamza Qureshi"
+  },
+  {
+    id: "rec-northstar",
+    customerId: "northstar-health",
+    riskLevel: "Amber",
+    action: "Close security Q&A and reset launch readiness criteria with customer stakeholders.",
+    reason: "Non-response and launch-readiness risk are suppressing relationship confidence.",
+    owner: "Amina Farooq",
+    dueDate: "May 28, 2026",
+    status: "Pending review",
+    approvalRequired: true,
+    reviewer: ""
+  },
+  {
+    id: "rec-urbannest",
+    customerId: "urbannest",
+    riskLevel: "Amber",
+    action: "Reset demo scope and add business acceptance criteria to broker workflow backlog.",
+    reason: "AE notes indicate expectation drift before the next customer demo.",
+    owner: "Mehak Ali",
+    dueDate: "May 29, 2026",
+    status: "Needs evidence",
+    approvalRequired: false,
+    reviewer: "Sara Khan"
+  }
+];
+
+const agents = [
+  ["Signal Classifier Agent", "Classifies raw inputs by source and type.", "Rule-based"],
+  ["Jira Delivery Agent", "Detects blockers, delays, missed commitments, and SLA risk.", "Mock/rules"],
+  ["CSAT Agent", "Interprets low scores and non-response.", "Mock/rules"],
+  ["MOM Analysis Agent", "Extracts risks, commitments, and concerns from meeting notes.", "Manual sample"],
+  ["Email Sentiment Agent", "Summarizes approved customer communication sentiment.", "Simulated"],
+  ["Escalation Agent", "Interprets severity and root cause from escalation logs.", "Mock/rules"],
+  ["AE Notes Agent", "Turns relationship context into risk signals.", "Manual notes"],
+  ["Health Scoring Agent", "Calculates score, RAG status, and confidence.", "Rule-based"],
+  ["Root Cause Agent", "Explains score changes with evidence.", "Template/mock"],
+  ["Recommended Action Agent", "Suggests next human-owned action.", "Template/mock"],
+  ["Human Review Gate", "Requires review before major action.", "UI workflow"]
+];
+
+const integrations = [
+  ["Jira REST API", "Issues, blockers, missed commitments, and webhook updates.", "Phase 3"],
+  ["Google Workspace / Microsoft Graph", "Approved customer communication summaries only.", "Phase 5"],
+  ["MOM Upload / Drive / SharePoint", "Meeting actions, concerns, and commitments.", "Phase 5"],
+  ["CSAT Source", "Survey scores, non-response, and account pulse.", "Phase 4"],
+  ["PostgreSQL + Prisma", "Persistent customers, signals, scores, recommendations, and audit logs.", "Phase 2"],
+  ["LLM / SLM Adapter", "Sentiment, extraction, root cause explanation, and recommendation wording.", "Phase 4"],
+  ["Notification Workflows", "Amber/Red alerts to approved internal channels.", "Phase 6"],
+  ["SSO + RBAC", "Company identity, role mapping, sessions, and audit trail.", "Phase 6"]
+];
+
+const releasePlan = [
+  ["Phase 1", "MVP demo with mock data, scoring, signals, root causes, and recommendations."],
+  ["Phase 2", "Add PostgreSQL, Prisma, CRUD, score history, users, roles, and audit tables."],
+  ["Phase 3", "Connect Jira API and webhooks, then normalize Jira work into signals."],
+  ["Phase 4", "Add LLM/SLM provider adapter, prompt templates, and evaluation logs."],
+  ["Phase 5", "Add approved email, MOM, CSAT, and privacy-controlled communication ingestion."],
+  ["Phase 6", "Add SSO, production RBAC, notification workflows, observability, and security review."]
+];
+
+const guardrails = [
+  ["Recommendation only", "AI output is suggested and cannot send customer-facing messages."],
+  ["Evidence required", "Scores and actions cite root causes, signals, and confidence."],
+  ["Low confidence review", "Signals below confidence threshold require human review before scoring impact."],
+  ["Approved sources", "No personal inbox scanning. Use approved labels, mailboxes, or manual upload."],
+  ["No individual blame", "Customer-facing summaries avoid blaming people or declaring churn as certain."],
+  ["Role restrictions", "Sensitive evidence changes by role and assigned customer access."]
+];
+
+const successChecklist = [
+  "At least 8 sample customers are represented.",
+  "Green, Amber, and Red statuses are visible.",
+  "Every Red account has root cause and recommended action.",
+  "Signal inbox shows multiple source types and confidence.",
+  "Health score and scoring rules are explainable.",
+  "Human review workflow is visible.",
+  "Login and role-based experience is demonstrated.",
+  "Sensitive actions are role-aware."
+];
+
+const openQuestions = [
+  "Which Jira projects and PMO boards are approved first?",
+  "Which CSAT source should become the system of record?",
+  "Will email ingestion use Gmail API, Microsoft Graph, or manual forwarding?",
+  "Which roles can access sensitive evidence by default?",
+  "Which LLM/SLM provider is approved internally?",
+  "Who owns final approval for Red account recommended actions?",
+  "Should access be global, POD-based, account-based, or project-based?"
+];
+
+const confidenceBands = [
+  ["90-100", "Strong evidence, can affect score and trigger review."],
+  ["75-89", "Good evidence, can affect score and recommendation."],
+  ["60-74", "Moderate evidence, show in inbox and may require review."],
+  ["Below 60", "Weak evidence, do not affect score until reviewed."]
+];
+
 const state = {
+  currentUser: null,
+  selectedCustomerId: "cafe-zupas",
   search: "",
-  status: "All",
-  risk: "All",
-  selectedId: "signal",
-  activeActorId: null,
-  acknowledged: new Set(),
-  dashboardTheme: "light",
-  notificationsOpen: false,
-  notificationsRead: false
+  statusFilter: "All",
+  tierFilter: "All",
+  signalSource: "All",
+  signalReview: "All",
+  trendRange: 30,
+  demoMode: false,
+  demoStepIndex: 0
 };
 
-const $ = (selector) => document.querySelector(selector);
-const $$ = (selector) => Array.from(document.querySelectorAll(selector));
-const roleMap = Object.fromEntries(roleDefinitions.map((role) => [role.name, role]));
-const backendPort = "4174";
-
-function resolveApiBase() {
-  if (typeof window.PROJECT_HEALTH_API_BASE === "string") {
-    return window.PROJECT_HEALTH_API_BASE.replace(/\/$/, "");
-  }
-  if (window.location.protocol === "http:" || window.location.protocol === "https:") {
-    if (window.location.port && window.location.port !== backendPort) {
-      return `${window.location.protocol}//${window.location.hostname}:${backendPort}`;
-    }
-    return "";
-  }
-  return `http://localhost:${backendPort}`;
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
-const apiBase = resolveApiBase();
+function clamp(value, min = 0, max = 100) {
+  return Math.max(min, Math.min(max, Number(value) || 0));
+}
 
-async function apiRequest(path, options = {}) {
-  const response = await fetch(`${apiBase}${path}`, {
-    method: options.method || "GET",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.headers || {})
-    },
-    body: options.body ? JSON.stringify(options.body) : undefined
+function average(items, selector) {
+  if (!items.length) return 0;
+  return Math.round(items.reduce((sum, item) => sum + selector(item), 0) / items.length);
+}
+
+function scoreFromBreakdown(customer) {
+  const total = Object.entries(scoringWeights).reduce((sum, [key, weight]) => {
+    return sum + Number(customer.breakdown[key] || 0) * (Number(weight) / 100);
+  }, 0);
+  return Math.round(clamp(total));
+}
+
+function ragStatus(score) {
+  if (score >= 75) return "Green";
+  if (score >= 45) return "Amber";
+  return "Red";
+}
+
+function statusClass(status) {
+  return String(status || "").toLowerCase();
+}
+
+function statusColor(status) {
+  return status === "Green" ? "#1b7f4c" : status === "Amber" ? "#b96b00" : "#b42318";
+}
+
+function severityClass(severity) {
+  const value = String(severity || "").toLowerCase();
+  if (value === "critical" || value === "high") return "red";
+  if (value === "medium") return "amber";
+  return "green";
+}
+
+function normalizeCustomers() {
+  customers.forEach((customer) => {
+    customer.score = scoreFromBreakdown(customer);
+    customer.healthStatus = ragStatus(customer.score);
   });
-  const payload = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    throw new Error(payload.error || "The backend request failed.");
-  }
-  return payload;
 }
 
-function applyServerState(payload) {
-  if (Array.isArray(payload.actors)) {
-    actors.length = 0;
-    actors.push(...payload.actors);
-  }
-  if (Array.isArray(payload.projects)) {
-    projects = payload.projects;
-  } else if (Array.isArray(payload.publicProjects) && !isAuthenticated()) {
-    projects = payload.publicProjects.map((project) => ({
-      id: project.id,
-      name: project.name,
-      customer: project.name,
-      status: "On Track",
-      health: 0,
-      progress: 0,
-      teamPerformance: 0,
-      clientSatisfaction: 0,
-      deliveryConfidence: 0,
-      riskLevel: "Contained",
-      environment: "TBD",
-      portfolioShare: 0,
-      timeline: { start: "TBD", milestone: "TBD", delivery: "TBD" },
-      projectManager: "",
-      teamLead: "",
-      developers: [],
-      clientUser: "",
-      scope: "",
-      risks: [],
-      clientRisks: [],
-      issues: [],
-      nextActions: [],
-      healthTrend: Array.from({ length: 12 }, () => 0),
-      lastUpdated: "TBD"
-    }));
-  }
-  if (payload.actor) {
-    state.activeActorId = payload.actor.id;
-  } else if (payload.authenticated === false) {
-    state.activeActorId = null;
-  }
-  if (Array.isArray(payload.acknowledged)) {
-    state.acknowledged = new Set(payload.acknowledged);
-  }
-  renderProjectFormOptions();
-  renderRegistrationProjectOptions(payload.publicProjects);
+function roleConfig(role = state.currentUser?.role) {
+  return roleDefinitions[role] || roleDefinitions["C-Level"];
+}
+
+function userCan(permission) {
+  return Boolean(roleConfig().permissions[permission]);
+}
+
+function canSeeCustomer(customer) {
+  const user = state.currentUser;
+  if (!user) return false;
+  return user.assignedCustomerIds.includes("all") || user.assignedCustomerIds.includes(customer.id);
+}
+
+function visibleCustomers() {
+  return customers.filter(canSeeCustomer);
+}
+
+function filteredCustomers() {
+  const term = state.search.trim().toLowerCase();
+  return visibleCustomers()
+    .filter((customer) => state.statusFilter === "All" || customer.healthStatus === state.statusFilter)
+    .filter((customer) => state.tierFilter === "All" || customer.tier === state.tierFilter)
+    .filter((customer) => {
+      if (!term) return true;
+      return [
+        customer.name,
+        customer.project,
+        customer.accountOwner,
+        customer.projectManager,
+        customer.domain,
+        customer.primaryRisk
+      ].join(" ").toLowerCase().includes(term);
+    })
+    .sort((a, b) => a.score - b.score);
+}
+
+function selectedCustomer() {
+  const visible = visibleCustomers();
+  const selected = visible.find((customer) => customer.id === state.selectedCustomerId);
+  if (selected) return selected;
+  state.selectedCustomerId = visible[0]?.id || customers[0].id;
+  return visible[0] || customers[0];
+}
+
+function customerById(id) {
+  return customers.find((customer) => customer.id === id) || customers[0];
+}
+
+function signalsForVisibleCustomers() {
+  const visibleIds = new Set(visibleCustomers().map((customer) => customer.id));
+  return signals.filter((signal) => visibleIds.has(signal.customerId));
+}
+
+function filteredSignals() {
+  return signalsForVisibleCustomers()
+    .filter((signal) => state.signalSource === "All" || signal.source === state.signalSource)
+    .filter((signal) => state.signalReview === "All" || signal.status === state.signalReview)
+    .sort((a, b) => severityWeight(b.severity) - severityWeight(a.severity));
+}
+
+function severityWeight(severity) {
+  return { Critical: 4, High: 3, Medium: 2, Low: 1 }[severity] || 0;
+}
+
+function canViewSensitiveSignal(signal) {
+  if (!signal.sensitive) return true;
+  const permission = roleConfig().permissions.viewSensitive;
+  if (permission === true) return true;
+  if (permission === "delivery") return signal.sensitiveType === "delivery";
+  if (permission === "reviewed") return signal.status === "Reviewed";
+  return false;
 }
 
 function icon(name) {
   return `<svg class="icon"><use href="#icon-${name}"></use></svg>`;
 }
 
-function escapeHtml(value) {
-  return String(value)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
-function clamp(value, min = 0, max = 100) {
-  return Math.min(max, Math.max(min, Number(value) || 0));
-}
-
-function average(items, key) {
-  if (!items.length) {
-    return 0;
-  }
-  return Math.round(items.reduce((sum, item) => sum + Number(item[key] || 0), 0) / items.length);
-}
-
-function formatCompactNumber(value) {
-  const number = Number(value) || 0;
-  if (number >= 1000000) {
-    return `${(number / 1000000).toFixed(1)}M`;
-  }
-  if (number >= 1000) {
-    return `${(number / 1000).toFixed(1)}K`;
-  }
-  return String(number);
-}
-
-function selectedActor() {
-  return actors.find((actor) => actor.id === state.activeActorId) || actors[0] || {
-    id: "",
-    name: "Guest",
-    role: "Client/User",
-    organization: "",
-    projectIds: [],
-    accessLevel: "",
-    responsibilities: ""
-  };
-}
-
-function isAuthenticated() {
-  return Boolean(state.activeActorId && actors.some((actor) => actor.id === state.activeActorId));
-}
-
-function normalizeEmail(email) {
-  return String(email || "").trim().toLowerCase();
-}
-
-function renderSession() {
-  const actor = selectedActor();
-  $("#sessionRole").textContent = actor.role;
-  $("#sessionName").textContent = actor.name;
-}
-
-function showLogin() {
-  document.documentElement.classList.remove("app-scroll-mode");
-  document.body.classList.add("auth-locked");
-  document.body.classList.remove("is-authenticated");
-  closeMobileNav();
-  const activeForm = $("#registerForm").hidden ? $("#loginEmail") : $("#registerName");
-  activeForm.focus();
-}
-
-function showApp() {
-  document.documentElement.classList.remove("app-scroll-mode");
-  document.body.classList.remove("auth-locked");
-  document.body.classList.add("is-authenticated");
-  renderSession();
-}
-
-function setAuthMode(mode) {
-  const isRegister = mode === "register";
-  $("#loginForm").hidden = isRegister;
-  $("#registerForm").hidden = !isRegister;
-  $("#authCardTitle").textContent = isRegister ? "Create account" : "Welcome back";
-  $$(".auth-tabs button").forEach((button) => {
-    const selected = button.dataset.authTab === mode;
-    button.classList.toggle("is-active", selected);
-    button.setAttribute("aria-selected", String(selected));
-  });
-  $("#loginStatus").textContent = "";
-  $("#registerStatus").textContent = "";
-  window.setTimeout(() => {
-    (isRegister ? $("#registerName") : $("#loginEmail")).focus();
-  }, 0);
-}
-
-function logInActor(actor, payload = null) {
-  if (payload) {
-    applyServerState(payload);
-  }
-  state.activeActorId = actor.id;
-  state.notificationsOpen = false;
-  state.notificationsRead = false;
-  resetProjectFilters();
-  applyHashTarget();
-  const visible = visibleProjectsForActor();
-  state.selectedId = visible.find((project) => project.id === state.selectedId)?.id || visible[0]?.id || projects[0].id;
-  $("#loginStatus").textContent = "";
-  $("#loginForm").reset();
-  showApp();
-  renderAll();
-  scrollToHashTarget();
-  updateActiveNav();
-}
-
-function logOutActor() {
-  state.activeActorId = null;
-  state.search = "";
-  state.status = "All";
-  state.risk = "All";
-  state.selectedId = "signal";
-  state.acknowledged.clear();
-  state.notificationsOpen = false;
-  state.notificationsRead = false;
-  $("#loginStatus").textContent = "You have been logged out.";
-  showLogin();
-}
-
-function selectedRole() {
-  return roleMap[selectedActor().role];
-}
-
-function isAdmin(actor = selectedActor()) {
-  return actor.role === "Admin";
-}
-
-function hasAssignedAccess(project, actor = selectedActor()) {
-  return actor.projectIds.includes("all") || actor.projectIds.includes(project.id);
-}
-
-function canViewProject(project, actor = selectedActor()) {
-  return isAdmin(actor) || hasAssignedAccess(project, actor);
-}
-
-function canCreateProjects(actor = selectedActor()) {
-  return actor.role === "Admin" || actor.role === "Project Manager";
-}
-
-function canExportReports(actor = selectedActor()) {
-  return actor.role === "Admin" || actor.role === "Project Manager";
-}
-
-function canAcknowledgeRisk(project, actor = selectedActor()) {
-  return ["Admin", "Project Manager"].includes(actor.role) && hasAssignedAccess(project, actor);
-}
-
-function canEditProject(project, actor = selectedActor()) {
-  return ["Admin", "Project Manager", "Team Lead", "Developer"].includes(actor.role) && hasAssignedAccess(project, actor);
-}
-
-function canSeeInternalMetrics(actor = selectedActor()) {
-  return actor.role !== "Client/User";
-}
-
-function canSeeClientSatisfaction(actor = selectedActor()) {
-  return actor.role !== "Developer";
-}
-
-function visibleProjectsForActor() {
-  const actor = selectedActor();
-  return projects.filter((project) => canViewProject(project, actor));
-}
-
-function scopedMetricProjects() {
-  const visible = visibleProjectsForActor();
-  return visible.length ? visible : projects;
-}
-
-function filteredProjects() {
-  const term = state.search.trim().toLowerCase();
-  return visibleProjectsForActor().filter((project) => {
-    const searchable = [
-      project.name,
-      project.customer,
-      project.status,
-      project.riskLevel,
-      project.projectManager,
-      project.teamLead,
-      project.clientUser,
-      ...project.developers
-    ].join(" ").toLowerCase();
-    const matchesTerm = !term || searchable.includes(term);
-    const matchesStatus = state.status === "All" || project.status === state.status;
-    const matchesRisk = state.risk === "All" || project.riskLevel === state.risk;
-    return matchesTerm && matchesStatus && matchesRisk;
-  });
-}
-
-function selectedProject() {
-  const visible = visibleProjectsForActor();
-  return visible.find((project) => project.id === state.selectedId) || visible[0] || projects[0];
-}
-
-function statusClass(status) {
-  return status.toLowerCase().replace(/\s+/g, "-");
-}
-
-function riskClass(risk) {
-  return risk.toLowerCase();
+function statusPill(label, tone = "neutral") {
+  return `<span class="status-pill ${tone}">${escapeHtml(label)}</span>`;
 }
 
 function initials(name) {
-  return name.split(" ").map((part) => part[0]).join("").slice(0, 2).toUpperCase();
+  return String(name)
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0].toUpperCase())
+    .join("");
 }
 
-function formatDate(dateValue) {
-  if (!dateValue) {
-    return "TBD";
-  }
-  const date = new Date(`${dateValue}T00:00:00`);
-  if (Number.isNaN(date.getTime())) {
-    return dateValue;
-  }
-  return date.toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" });
-}
-
-function scrollPageTo(target, behavior = "smooth") {
-  const main = $("main");
-  const mainCanScroll = main
-    && main.contains(target)
-    && main.scrollHeight > main.clientHeight
-    && getComputedStyle(main).overflowY !== "visible";
-
-  if (document.body.classList.contains("is-authenticated") && mainCanScroll) {
-    const mainRect = main.getBoundingClientRect();
-    const targetRect = target.getBoundingClientRect();
-    const top = main.scrollTop + targetRect.top - mainRect.top;
-    if (behavior === "auto") {
-      main.scrollTop = Math.max(0, top);
-    } else if (typeof main.scrollTo === "function") {
-      main.scrollTo({ top: Math.max(0, top), behavior });
-    } else {
-      main.scrollTop = Math.max(0, top);
-    }
-    return;
-  }
-
-  const root = document.scrollingElement || document.documentElement;
-  const scrollMargin = parseFloat(getComputedStyle(target).scrollMarginTop) || 0;
-  const top = root.scrollTop + target.getBoundingClientRect().top - scrollMargin;
-  if (behavior === "auto") {
-    root.scrollTop = Math.max(0, top);
-  } else if (typeof root.scrollTo === "function") {
-    root.scrollTo({ top: Math.max(0, top), behavior });
-  } else {
-    root.scrollTop = Math.max(0, top);
-  }
-}
-
-function readDashboardTheme() {
-  try {
-    return localStorage.getItem("vertexAiDashboardTheme") === "dark" ? "dark" : "light";
-  } catch {
-    return "light";
-  }
-}
-
-function saveDashboardTheme(theme) {
-  try {
-    localStorage.setItem("vertexAiDashboardTheme", theme);
-  } catch {
-    // The toggle remains functional for the current session when storage is blocked.
-  }
-}
-
-function applyDashboardTheme() {
-  const isDark = state.dashboardTheme === "dark";
-  document.body.classList.toggle("dashboard-dark-mode", isDark);
-
-  const themeToggle = $("#themeToggle");
-  if (themeToggle) {
-    themeToggle.setAttribute("aria-pressed", String(isDark));
-    themeToggle.setAttribute("aria-label", isDark ? "Switch to light dashboard theme" : "Switch to dark dashboard theme");
-    themeToggle.title = isDark ? "Switch to light theme" : "Switch to dark theme";
-  }
-
-  const themeMeta = document.querySelector("meta[name='theme-color']");
-  if (themeMeta) {
-    themeMeta.setAttribute("content", isDark ? "#0F172A" : "#F8FAFC");
-  }
-}
-
-function toggleDashboardTheme() {
-  state.dashboardTheme = state.dashboardTheme === "dark" ? "light" : "dark";
-  saveDashboardTheme(state.dashboardTheme);
-  applyDashboardTheme();
-}
-
-function calculateHealth(project) {
-  const riskPenalty = project.riskLevel === "Critical" ? 12 : project.riskLevel === "Elevated" ? 6 : 0;
-  return clamp(
-    Math.round(
-      project.progress * 0.28 +
-      project.teamPerformance * 0.24 +
-      project.clientSatisfaction * 0.22 +
-      project.deliveryConfidence * 0.26 -
-      riskPenalty
-    )
-  );
-}
-
-function uniqueProjectId(name) {
-  const base = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "project";
-  let id = base;
-  let suffix = 2;
-  while (projects.some((project) => project.id === id)) {
-    id = `${base}-${suffix}`;
-    suffix += 1;
-  }
-  return id;
-}
-
-function assignProjectToActor(actorName, projectId) {
-  const actor = actors.find((item) => item.name === actorName);
-  if (actor && !actor.projectIds.includes("all") && !actor.projectIds.includes(projectId)) {
-    actor.projectIds.push(projectId);
-    actor.accessLevel = actor.accessLevel.includes(projectId) ? actor.accessLevel : `${actor.accessLevel}; assigned ${projectId}`;
-  }
-}
-
-function roleScopeLabel(actor = selectedActor()) {
-  if (actor.projectIds.includes("all")) {
-    return "All records";
-  }
-  return `${actor.projectIds.length} assigned record${actor.projectIds.length === 1 ? "" : "s"}`;
-}
-
-function renderProjectFormOptions() {
-  const byRole = (role) => actors.filter((actor) => actor.role === role);
-  const options = (list) => list.map((actor) => `<option>${escapeHtml(actor.name)}</option>`).join("");
-  $("#projectManagerSelect").innerHTML = options(byRole("Project Manager"));
-  $("#teamLeadSelect").innerHTML = options(byRole("Team Lead"));
-  $("#developerSelect").innerHTML = options(byRole("Developer"));
-  $("#clientUserSelect").innerHTML = options(byRole("Client/User"));
-}
-
-function renderRegistrationProjectOptions(projectOptions = projects) {
-  $("#registerProject").innerHTML = projectOptions.map((project) => `
-    <option value="${escapeHtml(project.id)}">${escapeHtml(project.name)}</option>
-  `).join("");
-}
-
-function renderHeroSummary() {
-  const visible = visibleProjectsForActor();
-  const elevated = visible.filter((project) => project.riskLevel !== "Contained").length;
-  $("#heroHealth").textContent = average(visible, "health");
-  $("#heroProjects").textContent = visible.length;
-  $("#heroRisk").textContent = elevated;
-  $("#heroDelivery").textContent = `${average(visible, "deliveryConfidence")}%`;
-}
-
-function dashboardPredictionTrend(multiplier = 1) {
-  const source = scopedMetricProjects();
-  const labels = ["May 12", "May 13", "May 14", "May 15", "May 16", "May 17", "May 18"];
-
-  return labels.map((label, index) => {
-    const trendIndex = index + 5;
-    const predictions = source.reduce((sum, project) => {
-      const health = Number(project.healthTrend?.[trendIndex] ?? project.health ?? 75);
-      const openSignalCount = (project.risks?.length || 0) + (project.issues?.length || 0);
-      const statusWeight = project.status === "At Risk" ? 7 : project.status === "Watch" ? 4 : 2;
-      const riskWeight = project.riskLevel === "Critical" ? 6 : project.riskLevel === "Elevated" ? 4 : 2;
-      const healthPressure = Math.max(1, Math.round((100 - health) / 8));
-      return sum + openSignalCount + statusWeight + riskWeight + healthPressure;
-    }, 0);
-
-    return {
-      label,
-      predictions: Math.max(source.length, Math.round(predictions * multiplier))
-    };
-  });
-}
-
-function dashboardModelMetrics() {
-  const source = scopedMetricProjects();
-  const totalProjects = source.length;
-  const deployedModels = source.length;
-  const predictionTotal = dashboardPredictionTrend().reduce((sum, point) => sum + point.predictions, 0);
-  const activeModels = source.length;
-
-  return {
-    totalProjects,
-    deployedModels,
-    predictionScore: formatCompactNumber(predictionTotal),
-    activeModels
-  };
-}
-
-function realtimeDashboardMetrics() {
-  const modelMetrics = dashboardModelMetrics();
-  return [
-    { label: "Total Projects", value: modelMetrics.totalProjects, delta: "Live customer records", icon: "calendar", tone: "blue", href: "#projects" },
-    { label: "Models Deployed", value: modelMetrics.deployedModels, delta: "1 model per project", icon: "cube", tone: "purple", href: "#deployments" },
-    { label: "Total Predictions", value: modelMetrics.predictionScore, delta: "7-day risk checks", icon: "activity", tone: "green", href: "#prediction-overview" },
-    { label: "Active Models", value: modelMetrics.activeModels, delta: "All currently running", icon: "layers", tone: "orange", href: "#deployments" }
-  ];
-}
-
-function dashboardResourceMetrics() {
-  const source = scopedMetricProjects();
-  const colors = {
-    signal: "#2563EB",
-    "cafe-zupas": "#F59E0B",
-    "rei-blackbook": "#06B6D4"
-  };
-  const workload = source.map((project) => {
-    const openSignals = (project.risks?.length || 0) + (project.issues?.length || 0);
-    const statusWeight = project.status === "At Risk" ? 26 : project.status === "Watch" ? 16 : 8;
-    const riskWeight = project.riskLevel === "Critical" ? 26 : project.riskLevel === "Elevated" ? 16 : 6;
-    const progressPressure = Math.round((100 - Number(project.progress || 0)) * 0.45);
-    const healthPressure = Math.round((100 - Number(project.health || 0)) * 0.35);
-    const deliveryPressure = Math.round((100 - Number(project.deliveryConfidence || 0)) * 0.16);
-    const clientPressure = Math.round((100 - Number(project.clientSatisfaction || 0)) * 0.14);
-    const issuePressure = openSignals * 3;
-    const calculatedShare = Math.max(8, statusWeight + riskWeight + progressPressure + healthPressure + deliveryPressure + clientPressure + issuePressure);
-    const value = Number(project.portfolioShare || 0) > 0 ? Number(project.portfolioShare) : calculatedShare;
-
-    return {
-      label: project.name,
-      score: value,
-      color: colors[project.id] || "#7C3AED"
-    };
-  }).sort((a, b) => b.score - a.score);
-  const totalScore = workload.reduce((sum, item) => sum + item.score, 0) || 1;
-  let assigned = 0;
-  const segments = workload.map((item, index) => {
-    const isLast = index === workload.length - 1;
-    const value = isLast ? 100 - assigned : Math.round((item.score / totalScore) * 100);
-    assigned += value;
-    return {
-      label: item.label,
-      value,
-      color: item.color
-    };
-  });
-  const used = segments.reduce((sum, item) => sum + item.value, 0);
-
-  return { segments, used };
-}
-
-function realtimeStatsCardsHtml(cardClass = "metric-card ai-stat-card") {
-  return realtimeDashboardMetrics().map((metric) => `
-    <a class="${escapeHtml(cardClass)} is-${escapeHtml(metric.tone)}" href="${escapeHtml(metric.href)}" data-stat-link aria-label="Open ${escapeHtml(metric.label)} details">
-      <div class="metric-top">
-        <span class="metric-icon">${icon(metric.icon)}</span>
-        <span class="metric-delta">${icon("activity")} ${escapeHtml(metric.delta)}</span>
-      </div>
-      <strong>${escapeHtml(metric.value)}</strong>
-      <span>${escapeHtml(metric.label)}</span>
-    </a>
-  `).join("");
-}
-
-function bindDashboardStatLinks(scope = document) {
-  scope.querySelectorAll("[data-stat-link]").forEach((link) => {
-    if (link.dataset.boundStatLink) {
-      return;
-    }
-
-    link.dataset.boundStatLink = "true";
-    link.addEventListener("click", (event) => {
-      const href = link.getAttribute("href");
-      const target = href && href.length > 1 ? document.querySelector(href) : null;
-      if (!target) {
-        return;
-      }
-
-      event.preventDefault();
-      closeMobileNav();
-      scrollPageTo(target);
-      history.pushState(null, "", href);
-      window.setTimeout(updateActiveNav, 350);
-    });
-  });
-}
-
-function renderMetrics() {
-  $("#metricGrid").innerHTML = realtimeStatsCardsHtml();
-  bindDashboardStatLinks($("#metricGrid"));
-
-  if ($("#roleScopePill")) {
-    $("#roleScopePill").textContent = roleScopeLabel();
-  }
-}
-
-function renderProposalRealtimeStats() {
-  const container = $("#proposalRealtimeStats");
-  if (!container) {
-    return;
-  }
-
-  const resource = dashboardResourceMetrics();
-  container.innerHTML = `
-    <div class="proposal-realtime-grid">
-      ${realtimeStatsCardsHtml("metric-card ai-stat-card proposal-realtime-card")}
-    </div>
-    <div class="proposal-resource-strip" aria-label="Live resource usage">
-      ${[
-        ...resource.segments,
-        { label: "Portfolio Total", value: resource.used }
-      ].map((item) => `
-        <div>
-          <span>${escapeHtml(item.label)}</span>
-          <strong>${item.value}%</strong>
-        </div>
-      `).join("")}
-    </div>
-  `;
-  bindDashboardStatLinks(container);
-}
-
-function renderTrendChart(multiplier = 1) {
-  const trend = dashboardPredictionTrend(multiplier);
-  const width = 720;
-  const height = 278;
-  const left = 54;
-  const right = 28;
-  const top = 28;
-  const bottom = 44;
-  const chartWidth = width - left - right;
-  const chartHeight = height - top - bottom;
-  const maxPredictions = Math.max(10, ...trend.map((point) => point.predictions));
-  const maxTick = Math.ceil(maxPredictions / 10) * 10;
-  const ticks = Array.from({ length: 5 }, (_, index) => Math.round((maxTick / 4) * index));
-  const points = trend.map((point, index) => ({
-      x: left + (chartWidth / (trend.length - 1)) * index,
-      y: top + chartHeight - (point.predictions / maxTick) * chartHeight,
-      predictions: point.predictions,
-      label: point.label
-    }));
-  const path = points.map((point, index) => `${index ? "L" : "M"} ${point.x.toFixed(1)} ${point.y.toFixed(1)}`).join(" ");
-  const areaPath = `${path} L ${points[points.length - 1].x.toFixed(1)} ${height - bottom} L ${points[0].x.toFixed(1)} ${height - bottom} Z`;
-  const focusPoint = points[3] || points[0];
-
-  $("#trendChart").innerHTML = `
-    <svg class="prediction-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Risk prediction checks from May 12 to May 18">
-      <defs>
-        <linearGradient id="predictionArea" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0" stop-color="#111111" stop-opacity="0.14" />
-          <stop offset="1" stop-color="#111111" stop-opacity="0" />
-        </linearGradient>
-      </defs>
-      ${ticks.map((tick) => {
-        const y = top + chartHeight - (tick / maxTick) * chartHeight;
-        return `
-          <g class="chart-gridline">
-            <line x1="${left}" y1="${y.toFixed(1)}" x2="${width - right}" y2="${y.toFixed(1)}"></line>
-            <text x="${left - 16}" y="${(y + 4).toFixed(1)}">${escapeHtml(tick)}</text>
-          </g>
-        `;
-      }).join("")}
-      <path class="prediction-area" d="${areaPath}"></path>
-      <path class="prediction-line" d="${path}"></path>
-      ${points.map((point) => `
-        <circle class="prediction-point" cx="${point.x.toFixed(1)}" cy="${point.y.toFixed(1)}" r="4"></circle>
-      `).join("")}
-      <g class="prediction-tooltip" transform="translate(${(focusPoint.x - 72).toFixed(1)} ${(focusPoint.y - 62).toFixed(1)})">
-        <rect width="144" height="44" rx="8"></rect>
-        <text x="72" y="18">${escapeHtml(focusPoint.label)}</text>
-        <text x="72" y="33">${escapeHtml(focusPoint.predictions.toLocaleString())} predictions</text>
-      </g>
-      ${points.map((point) => `
-        <text class="chart-x-label" x="${point.x.toFixed(1)}" y="${height - 14}">${escapeHtml(point.label)}</text>
-      `).join("")}
+function sparkline(values = [], color = "#1f5fbf") {
+  const width = 96;
+  const height = 32;
+  const points = values.map((value, index) => {
+    const x = values.length <= 1 ? 0 : (index / (values.length - 1)) * width;
+    const y = height - (clamp(value) / 100) * (height - 3) - 1;
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(" ");
+  return `
+    <svg class="sparkline" viewBox="0 0 ${width} ${height}" aria-hidden="true">
+      <polyline points="${points}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline>
     </svg>
   `;
 }
 
-function renderDeliveryStack() {
-  const resource = dashboardResourceMetrics();
-  $("#deliveryStack").innerHTML = `
-    <div class="resource-total-row">
-      <span>Portfolio Total</span>
-      <strong>${resource.used}%</strong>
-      <div class="progress-track">
-        <div class="progress-fill" style="width: ${resource.used}%"></div>
-      </div>
-      <small>of 100%</small>
-    </div>
+function setCustomer(id, shouldScroll = true) {
+  if (!visibleCustomers().some((customer) => customer.id === id)) return;
+  state.selectedCustomerId = id;
+  renderCustomerDetail();
+  renderPortfolio();
+  if (shouldScroll) {
+    $("#customer-detail")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+
+function renderLoginOptions() {
+  const options = demoUsers.map((user) => {
+    return `<option value="${escapeHtml(user.id)}">${escapeHtml(user.role)} - ${escapeHtml(user.email)}</option>`;
+  }).join("");
+  const roleOptions = demoUsers.map((user) => {
+    return `<option value="${escapeHtml(user.id)}">${escapeHtml(user.role)}</option>`;
+  }).join("");
+  $("#demoUserSelect").innerHTML = options;
+  $("#viewAsSelect").innerHTML = roleOptions;
+  const storedId = localStorage.getItem(STORAGE_KEY) || demoUsers[0].id;
+  $("#demoUserSelect").value = demoUsers.some((user) => user.id === storedId) ? storedId : demoUsers[0].id;
+  populateLoginFields();
+}
+
+function populateLoginFields() {
+  const user = demoUsers.find((item) => item.id === $("#demoUserSelect").value) || demoUsers[0];
+  $("#loginEmail").value = user.email;
+  $("#loginPassword").value = DEMO_PASSWORD;
+  $("#rolePreview").innerHTML = `
+    <h3>${escapeHtml(user.role)} access</h3>
+    <p>${escapeHtml(roleConfig(user.role).scope)}</p>
   `;
 }
 
-function renderRiskDonut() {
-  const resource = dashboardResourceMetrics();
-  let start = 0;
-  const gradientStops = resource.segments.map((item) => {
-    const end = start + item.value;
-    const stop = `${item.color} ${start}% ${end}%`;
-    start = end;
-    return stop;
-  }).join(", ");
+function signIn(user) {
+  state.currentUser = user;
+  localStorage.setItem(STORAGE_KEY, user.id);
+  $("#login").hidden = true;
+  $("#appShell").hidden = false;
+  document.body.classList.remove("auth-locked");
+  document.body.classList.add("is-authenticated");
+  if (!visibleCustomers().some((customer) => customer.id === state.selectedCustomerId)) {
+    state.selectedCustomerId = visibleCustomers()[0]?.id || customers[0].id;
+  }
+  renderAll();
+  requestAnimationFrame(() => updateActiveNav());
+}
 
-  $("#riskDonut").style.background = `conic-gradient(${gradientStops})`;
-  $("#riskDonut").innerHTML = `<span><strong>${resource.used}%</strong><small>Portfolio</small></span>`;
-  $("#riskLegend").innerHTML = resource.segments.map((item) => `
-    <div class="legend-item resource-legend-item">
-      <span><span class="legend-dot" style="display:inline-block; background: ${item.color}; margin-right: 8px"></span>${escapeHtml(item.label)}</span>
-      <strong>${item.value}%</strong>
-    </div>
+function logOut() {
+  state.currentUser = null;
+  $("#appShell").hidden = true;
+  $("#login").hidden = false;
+  document.body.classList.add("auth-locked");
+  document.body.classList.remove("is-authenticated");
+  $("#loginStatus").textContent = "";
+  populateLoginFields();
+}
+
+function renderSession() {
+  const user = state.currentUser;
+  $("#sessionRole").textContent = user.role;
+  $("#sessionName").textContent = user.name;
+  $("#viewAsSelect").value = user.id;
+  $("#roleScopePill").textContent = roleConfig().scope;
+}
+
+function renderNav() {
+  const allowed = new Set(roleConfig().nav);
+  $("#topNav").innerHTML = navItems
+    .filter((item) => allowed.has(item.id))
+    .map((item) => `<a href="#${item.id}" data-nav="${item.id}">${escapeHtml(item.label)}</a>`)
+    .join("");
+  navItems.forEach((item) => {
+    const section = document.getElementById(item.id);
+    if (section) section.hidden = !allowed.has(item.id);
+  });
+}
+
+function renderMetrics() {
+  const source = visibleCustomers();
+  const counts = {
+    Green: source.filter((customer) => customer.healthStatus === "Green").length,
+    Amber: source.filter((customer) => customer.healthStatus === "Amber").length,
+    Red: source.filter((customer) => customer.healthStatus === "Red").length
+  };
+  const tierOneRisk = source.filter((customer) => customer.tier === "Tier 1" && customer.healthStatus !== "Green").length;
+  const avgScore = average(source, (customer) => customer.score);
+  const openReviews = recommendations.filter((item) => item.status === "Pending review" && source.some((customer) => customer.id === item.customerId)).length;
+  const metricCards = [
+    ["Total customers", source.length, "Open all accounts", "users", "neutral", "all"],
+    ["Green", counts.Green, "Filter healthy accounts", "check", "green", "Green"],
+    ["Amber", counts.Amber, "Filter attention list", "alert", "amber", "Amber"],
+    ["Red", counts.Red, "Filter high-risk accounts", "bell", "red", "Red"],
+    ["Tier 1 risk", tierOneRisk, "Show leadership accounts", "target", "violet", "tier1"],
+    ["Average health", avgScore, `${openReviews} review actions`, "activity", "teal", "reviews"]
+  ];
+
+  $("#metricGrid").innerHTML = metricCards.map(([label, value, note, iconName, tone, filter]) => `
+    <button class="metric-card" type="button" data-metric-filter="${escapeHtml(filter)}">
+      <div class="metric-card-top">
+        <div>
+          <span>${escapeHtml(label)}</span>
+          <strong>${escapeHtml(value)}</strong>
+        </div>
+        <span class="status-pill ${tone}">${icon(iconName)}</span>
+      </div>
+      <small>${escapeHtml(note)}</small>
+    </button>
   `).join("");
 }
 
-function renderRecentDeployments() {
-  const container = $("#deploymentRows");
-  if (!container) {
-    return;
-  }
+function renderExecutiveSummary() {
+  const source = visibleCustomers();
+  const red = source.filter((customer) => customer.healthStatus === "Red");
+  const amber = source.filter((customer) => customer.healthStatus === "Amber");
+  const topRisk = [...source].sort((a, b) => a.score - b.score)[0];
+  const avgScore = average(source, (customer) => customer.score);
+  const restricted = roleConfig().permissions.viewSensitive === false ? " Raw sensitive evidence is restricted for this role." : "";
+  $("#executiveSummary").textContent = `${source.length} visible customer accounts average ${avgScore}/100. ${red.length} Red and ${amber.length} Amber accounts need proactive attention, with ${topRisk?.name || "no customer"} currently the lowest health score. The system is recommendation-only and requires human review before major customer-facing action.${restricted}`;
 
-  const source = scopedMetricProjects();
-  const modelNames = {
-    signal: "Signal Security Ops Model",
-    "rei-blackbook": "REI Blackbook Migration Risk Model",
-    "cafe-zupas": "Cafe Zupas Staging Risk Model"
-  };
-  const icons = ["shield", "cube", "activity"];
-  const rows = source.map((project, index) => {
-    return {
-      name: modelNames[project.id] || `${project.name} Escalation Model`,
-      status: "Active",
-      environment: project.environment || "Staging",
-      date: project.lastUpdated,
-      icon: icons[index % icons.length]
-    };
+  const actions = recommendations
+    .filter((rec) => source.some((customer) => customer.id === rec.customerId))
+    .sort((a, b) => (a.riskLevel === "Red" ? -1 : 1) - (b.riskLevel === "Red" ? -1 : 1))
+    .slice(0, 3);
+
+  $("#summaryActions").innerHTML = actions.map((rec) => {
+    const customer = customerById(rec.customerId);
+    return `
+      <button class="summary-action" type="button" data-select-customer="${escapeHtml(customer.id)}">
+        <span class="icon-badge">${icon(rec.riskLevel === "Red" ? "alert" : "target")}</span>
+        <span>
+          <strong>${escapeHtml(customer.name)}: ${escapeHtml(rec.owner)}</strong>
+          <span>${escapeHtml(rec.action)}</span>
+        </span>
+      </button>
+    `;
+  }).join("");
+}
+
+function renderTrendChart() {
+  const source = visibleCustomers();
+  const values = Array.from({ length: 12 }, (_, index) => average(source, (customer) => customer.trend[index] || customer.score));
+  const width = 760;
+  const height = 250;
+  const left = 42;
+  const right = 22;
+  const top = 20;
+  const bottom = 36;
+  const chartWidth = width - left - right;
+  const chartHeight = height - top - bottom;
+  const points = values.map((value, index) => {
+    const x = left + (index / (values.length - 1)) * chartWidth;
+    const y = top + chartHeight - (value / 100) * chartHeight;
+    return { x, y, value };
   });
+  const path = points.map((point, index) => `${index ? "L" : "M"} ${point.x.toFixed(1)} ${point.y.toFixed(1)}`).join(" ");
+  const area = `${path} L ${points[points.length - 1].x.toFixed(1)} ${height - bottom} L ${points[0].x.toFixed(1)} ${height - bottom} Z`;
+  const labels = state.trendRange === 30 ? ["W1", "W2", "W3", "W4"] : state.trendRange === 60 ? ["M1", "M2", "M3"] : ["Q start", "Mid", "Now"];
+  $("#trendRangeLabel").textContent = `${state.trendRange} days`;
+  $("#trendChart").innerHTML = `
+    <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Average health trend chart">
+      <defs>
+        <linearGradient id="trendFill" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stop-color="#1f5fbf" stop-opacity="0.28"></stop>
+          <stop offset="100%" stop-color="#1f5fbf" stop-opacity="0"></stop>
+        </linearGradient>
+      </defs>
+      <rect x="0" y="0" width="${width}" height="${height}" rx="8" fill="#f8fafc"></rect>
+      ${[25, 50, 75].map((tick) => {
+        const y = top + chartHeight - (tick / 100) * chartHeight;
+        return `<line x1="${left}" x2="${width - right}" y1="${y}" y2="${y}" stroke="#d7dee8"></line><text x="8" y="${y + 4}" fill="#667085" font-size="12">${tick}</text>`;
+      }).join("")}
+      <path d="${area}" fill="url(#trendFill)"></path>
+      <path d="${path}" fill="none" stroke="#1f5fbf" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
+      ${points.map((point) => `<circle cx="${point.x}" cy="${point.y}" r="4" fill="#ffffff" stroke="#1f5fbf" stroke-width="3"></circle>`).join("")}
+      ${labels.map((label, index) => {
+        const x = left + (index / Math.max(1, labels.length - 1)) * chartWidth;
+        return `<text x="${x}" y="${height - 10}" text-anchor="middle" fill="#667085" font-size="12">${escapeHtml(label)}</text>`;
+      }).join("")}
+    </svg>
+  `;
+}
 
-  container.innerHTML = rows.map((row) => `
-    <tr>
-      <td>
-        <span class="model-cell-icon">${icon(row.icon)}</span>
-        <span>${escapeHtml(row.name)}</span>
-      </td>
-      <td><span class="deployment-status ${row.status === "Active" ? "is-active" : "is-stopped"}">${escapeHtml(row.status)}</span></td>
-      <td><span class="environment-pill">${escapeHtml(row.environment)}</span></td>
-      <td>${escapeHtml(row.date)}</td>
-      <td>
-        <button class="icon-button table-action" type="button" aria-label="More actions for ${escapeHtml(row.name)}">${icon("more")}</button>
-      </td>
-    </tr>
+function renderRiskDistribution() {
+  const source = visibleCustomers();
+  const total = Math.max(1, source.length);
+  const counts = {
+    Green: source.filter((customer) => customer.healthStatus === "Green").length,
+    Amber: source.filter((customer) => customer.healthStatus === "Amber").length,
+    Red: source.filter((customer) => customer.healthStatus === "Red").length
+  };
+  const greenEnd = (counts.Green / total) * 100;
+  const amberEnd = greenEnd + (counts.Amber / total) * 100;
+  $("#riskDonut").style.background = `conic-gradient(var(--green) 0 ${greenEnd}%, var(--amber) ${greenEnd}% ${amberEnd}%, var(--red) ${amberEnd}% 100%)`;
+  $("#riskDonut").innerHTML = `<strong>${source.length}</strong>`;
+  $("#riskLegend").innerHTML = Object.entries(counts).map(([label, count]) => `
+    <div class="legend-row">
+      <span><i class="legend-dot" style="background:${statusColor(label)}"></i>${escapeHtml(label)}</span>
+      <strong>${count}</strong>
+    </div>
+  `).join("");
+  $("#redCountPill").textContent = `${counts.Red} Red`;
+}
+
+function renderAtRiskList() {
+  const items = [...visibleCustomers()].sort((a, b) => a.score - b.score).slice(0, 5);
+  $("#atRiskList").innerHTML = items.map((customer) => `
+    <button class="risk-item" type="button" data-select-customer="${escapeHtml(customer.id)}">
+      <span>
+        <strong>${escapeHtml(customer.name)}</strong>
+        <span>${escapeHtml(customer.primaryRisk)}</span>
+      </span>
+      ${statusPill(`${customer.score} ${customer.healthStatus}`, statusClass(customer.healthStatus))}
+    </button>
   `).join("");
 }
 
 function renderActivityFeed() {
-  const container = $("#activityFeed");
-  if (!container) {
-    return;
-  }
-
-  const source = scopedMetricProjects();
-  const mainProject = source[0] || projects[0];
-  const nextProject = source[1] || mainProject;
-  const recoveryProject = source.find((project) => project.status === "At Risk") || source[source.length - 1] || mainProject;
-  const events = [
-    { icon: "shield", tone: "blue", text: `${mainProject.name} escalation model refreshed from live project signals.`, time: "2 minutes ago" },
-    { icon: "activity", tone: "purple", text: `${nextProject.name} risk prediction checks recalculated.`, time: "10 minutes ago" },
-    { icon: "calendar", tone: "green", text: `${source.length} project records synchronized for dashboard reporting.`, time: "1 hour ago" },
-    { icon: "bar-chart", tone: "orange", text: `${recoveryProject.name} recovery indicators reviewed against escalation drivers.`, time: "2 hours ago" }
-  ];
-
-  container.innerHTML = events.map((event) => `
-    <div class="activity-item is-${escapeHtml(event.tone)}">
-      <span class="activity-icon">${icon(event.icon)}</span>
-      <div>
-        <strong>${escapeHtml(event.text)}</strong>
-        <span>${escapeHtml(event.time)}</span>
-      </div>
-    </div>
-  `).join("");
-}
-
-function notificationSeverity(project) {
-  if (project.riskLevel === "Critical" || project.status === "At Risk") {
-    return "critical";
-  }
-  if (project.riskLevel === "Elevated" || project.status === "Watch" || Number(project.progress) < 60) {
-    return "warning";
-  }
-  return "info";
-}
-
-function notificationLabel(severity) {
-  return severity === "critical" ? "High priority" : severity === "warning" ? "Watchlist" : "Monitoring";
-}
-
-function dashboardNotifications() {
-  const actor = selectedActor();
-  const severityOrder = { critical: 0, warning: 1, info: 2 };
-
-  return visibleProjectsForActor()
-    .map((project) => {
-      const severity = notificationSeverity(project);
-      const riskMessage = actor.role === "Client/User" ? project.clientRisks[0] : project.risks[0] || project.issues[0];
-      const fallbackMessage = project.status === "On Track"
-        ? "Portfolio signals are synced and ready for review."
-        : "Project health signals need delivery review.";
-      return {
-        projectId: project.id,
-        projectName: project.name,
-        severity,
-        title: `${project.name} ${severity === "info" ? "monitoring update" : "needs attention"}`,
-        message: riskMessage || fallbackMessage,
-        meta: `${project.progress}% progress | ${project.riskLevel} risk | ${project.environment || "Staging"}`
-      };
-    })
-    .sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity] || a.projectName.localeCompare(b.projectName));
-}
-
-function setNotificationsOpen(isOpen) {
-  state.notificationsOpen = isOpen;
-  renderNotifications();
-}
-
-function openNotificationProject(projectId) {
-  state.notificationsRead = true;
-  state.notificationsOpen = false;
-  resetProjectFilters();
-  selectProject(projectId);
-  history.pushState(null, "", `#project-${projectId}`);
-  scrollPageTo(document.querySelector("#projects"));
-  renderNotifications();
-  window.setTimeout(updateActiveNav, 350);
-}
-
-function renderNotifications() {
-  const panel = $("#notificationPanel");
-  const toggle = $("#notificationToggle");
-  const dot = $("#notificationDot");
-  if (!panel || !toggle || !dot) {
-    return;
-  }
-
-  const notifications = dashboardNotifications();
-  const unreadCount = state.notificationsRead ? 0 : notifications.length;
-  dot.hidden = unreadCount === 0;
-  dot.textContent = unreadCount > 9 ? "9+" : String(unreadCount);
-  toggle.classList.toggle("has-unread", unreadCount > 0);
-  toggle.setAttribute("aria-expanded", String(state.notificationsOpen));
-  toggle.setAttribute("aria-label", state.notificationsOpen ? "Close notifications" : `${unreadCount} unread notifications`);
-  panel.hidden = !state.notificationsOpen;
-
-  panel.innerHTML = `
-    <div class="notification-panel-header">
-      <div>
-        <p class="eyebrow">Notifications</p>
-        <h3>Project signal alerts</h3>
-      </div>
-      <button class="button quiet notification-read-button" type="button" data-mark-notifications-read>Mark read</button>
-    </div>
-    <div class="notification-list">
-      ${notifications.map((item) => `
-        <button class="notification-item is-${escapeHtml(item.severity)}" type="button" data-notification-project="${escapeHtml(item.projectId)}">
-          <span>${icon(item.severity === "critical" ? "alert" : item.severity === "warning" ? "bell" : "activity")}</span>
-          <span>
-            <strong>${escapeHtml(item.title)}</strong>
-            <em>${escapeHtml(notificationLabel(item.severity))}</em>
-            <small>${escapeHtml(item.message)}</small>
-            <b>${escapeHtml(item.meta)}</b>
-          </span>
-        </button>
-      `).join("")}
-    </div>
-    <a class="notification-footer" href="#risk-alerts" data-notification-risk-center>
-      Open risk center ${icon("chevron")}
-    </a>
-  `;
-
-  panel.querySelector("[data-mark-notifications-read]").addEventListener("click", () => {
-    state.notificationsRead = true;
-    renderNotifications();
-  });
-
-  panel.querySelectorAll("[data-notification-project]").forEach((button) => {
-    button.addEventListener("click", () => openNotificationProject(button.dataset.notificationProject));
-  });
-
-  panel.querySelector("[data-notification-risk-center]").addEventListener("click", (event) => {
-    event.preventDefault();
-    state.notificationsRead = true;
-    state.notificationsOpen = false;
-    scrollPageTo(document.querySelector("#risk-alerts"));
-    history.pushState(null, "", "#risk-alerts");
-    renderNotifications();
-    window.setTimeout(updateActiveNav, 350);
-  });
-}
-
-function renderVisibilityBanner() {
-  const actor = selectedActor();
-  const text = `${actor.name} is viewing as ${actor.role}: ${actor.accessLevel}.`;
-  $("#visibilityBanner").innerHTML = `
-    <span>${icon("shield")} ${escapeHtml(text)}</span>
-    <strong>${escapeHtml(roleScopeLabel(actor))}</strong>
-  `;
-}
-
-function renderProjects() {
-  const list = filteredProjects();
-  const actor = selectedActor();
-  const rows = list.map((project) => {
-    const riskItems = actor.role === "Client/User" ? project.clientRisks : project.risks.concat(project.issues);
-    const teamValue = canSeeInternalMetrics(actor) ? `${project.teamPerformance}%` : "Restricted";
-    const clientValue = canSeeClientSatisfaction(actor) ? `${project.clientSatisfaction}%` : "Restricted";
-
+  const items = signalsForVisibleCustomers()
+    .filter((signal) => ["Critical", "High", "Medium"].includes(signal.severity))
+    .sort((a, b) => severityWeight(b.severity) - severityWeight(a.severity))
+    .slice(0, 5);
+  $("#activityFeed").innerHTML = items.map((signal) => {
+    const customer = customerById(signal.customerId);
     return `
-      <tr id="project-${escapeHtml(project.id)}" data-id="${escapeHtml(project.id)}" class="${project.id === state.selectedId ? "is-selected" : ""}" tabindex="0">
+      <button class="activity-item" type="button" data-select-customer="${escapeHtml(signal.customerId)}">
+        <strong>${escapeHtml(customer.name)} - ${escapeHtml(signal.type)}</strong>
+        <span>${escapeHtml(signal.date)} | ${escapeHtml(signal.risk)}</span>
+      </button>
+    `;
+  }).join("");
+}
+
+function renderDashboard() {
+  renderMetrics();
+  renderExecutiveSummary();
+  renderTrendChart();
+  renderRiskDistribution();
+  renderAtRiskList();
+  renderActivityFeed();
+}
+
+function renderPortfolio() {
+  const rows = filteredCustomers();
+  $("#portfolioCount").textContent = `${rows.length} customers`;
+  $("#visibilityBanner").innerHTML = `${icon("shield")} ${escapeHtml(state.currentUser.name)} is viewing as ${escapeHtml(state.currentUser.role)}. ${escapeHtml(roleConfig().scope)}`;
+  $("#customerRows").innerHTML = rows.map((customer) => {
+    const color = statusColor(customer.healthStatus);
+    const isSelected = customer.id === state.selectedCustomerId ? " aria-current=\"true\"" : "";
+    return `
+      <tr data-row-customer="${escapeHtml(customer.id)}"${isSelected}>
         <td>
-          <a class="record-link customer-name" href="#project-${escapeHtml(project.id)}" data-project-link="${escapeHtml(project.id)}">${escapeHtml(project.name)}</a>
-          <small>${escapeHtml(project.projectManager)} | ${escapeHtml(project.teamLead)}</small>
+          <div class="customer-cell">
+            <strong>${escapeHtml(customer.name)}</strong>
+            <span>${escapeHtml(customer.project)} | ${escapeHtml(customer.engagementType)}</span>
+          </div>
         </td>
-        <td><span class="status-badge ${statusClass(project.status)}">${escapeHtml(project.status)}</span></td>
-        <td><span class="environment-pill">${escapeHtml(project.environment || "Staging")}</span></td>
-        <td>${project.progress}%</td>
-        <td>${project.health}</td>
-        <td><span class="risk-badge ${riskClass(project.riskLevel)}">${escapeHtml(project.riskLevel)}</span> <small>${riskItems.length}</small></td>
-        <td>${escapeHtml(teamValue)}</td>
-        <td>${escapeHtml(clientValue)}</td>
-        <td>${escapeHtml(project.timeline.delivery)}</td>
+        <td>
+          <div class="score-cell">
+            <strong>${customer.score}</strong>
+            <span class="mini-gauge"><span style="width:${customer.score}%;background:${color}"></span></span>
+            ${statusPill(customer.healthStatus, statusClass(customer.healthStatus))}
+          </div>
+        </td>
+        <td>${escapeHtml(customer.tier)}</td>
+        <td>${escapeHtml(customer.domain)}</td>
+        <td>
+          <div class="customer-cell">
+            <strong>${escapeHtml(customer.accountOwner)}</strong>
+            <span>PM: ${escapeHtml(customer.projectManager)}</span>
+          </div>
+        </td>
+        <td>${escapeHtml(customer.primaryRisk)}</td>
+        <td>${sparkline(customer.trend, color)}</td>
+        <td><button class="button quiet" type="button" data-select-customer="${escapeHtml(customer.id)}">Open</button></td>
       </tr>
     `;
   }).join("");
-
-  $("#projectRows").innerHTML = rows || `
-    <tr>
-      <td colspan="9">No project records match this actor and filter set.</td>
-    </tr>
-  `;
-
-  $$("#projectRows tr[data-id]").forEach((row) => {
-    row.addEventListener("click", () => selectProject(row.dataset.id));
-    row.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        selectProject(row.dataset.id);
-      }
-    });
-  });
-
-  $$("[data-project-link]").forEach((link) => {
-    link.addEventListener("click", (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      selectProject(link.dataset.projectLink);
-      history.pushState(null, "", `#project-${link.dataset.projectLink}`);
-      scrollPageTo(document.querySelector("#projects"));
-      window.setTimeout(updateActiveNav, 350);
-    });
-  });
 }
 
-function renderProjectControls(project) {
-  const actor = selectedActor();
-
-  if (actor.role === "Client/User") {
-    return `
-      <form class="record-form" id="clientFeedbackForm">
-        <label>
-          <span>Client satisfaction</span>
-          <input name="satisfaction" type="number" min="0" max="100" value="${project.clientSatisfaction}" />
-        </label>
-        <label>
-          <span>Feedback note</span>
-          <input name="feedback" type="text" placeholder="Optional client note" />
-        </label>
-        <button class="button primary" type="submit">${icon("check")}Submit Feedback</button>
-      </form>
-      <p class="form-status" id="projectActionStatus" role="status"></p>
-    `;
-  }
-
-  if (!canEditProject(project, actor)) {
-    return `
-      <div class="record-permission">
-        <strong>Read-only access</strong>
-        <span>${escapeHtml(actor.role)} can view this record but cannot update project health.</span>
-      </div>
-    `;
-  }
-
-  if (actor.role === "Developer") {
-    return `
-      <form class="record-form" id="projectUpdateForm">
-        <label>
-          <span>Progress</span>
-          <input name="progress" type="number" min="0" max="100" value="${project.progress}" />
-        </label>
-        <label>
-          <span>Issue note</span>
-          <input name="issueNote" type="text" placeholder="Implementation update" />
-        </label>
-        <button class="button primary" type="submit">${icon("check")}Save Update</button>
-      </form>
-      <p class="form-status" id="projectActionStatus" role="status"></p>
-    `;
-  }
-
-  const managerFields = actor.role === "Admin" || actor.role === "Project Manager"
-    ? `
-      <label>
-        <span>Status</span>
-        <select name="status">
-          ${["On Track", "Watch", "At Risk"].map((status) => `<option ${status === project.status ? "selected" : ""}>${status}</option>`).join("")}
-        </select>
-      </label>
-      <label>
-        <span>Client satisfaction</span>
-        <input name="clientSatisfaction" type="number" min="0" max="100" value="${project.clientSatisfaction}" />
-      </label>
-      <label>
-        <span>Delivery confidence</span>
-        <input name="deliveryConfidence" type="number" min="0" max="100" value="${project.deliveryConfidence}" />
-      </label>
-    `
-    : "";
-
-  return `
-    <form class="record-form" id="projectUpdateForm">
-      ${managerFields}
-      <label>
-        <span>Progress</span>
-        <input name="progress" type="number" min="0" max="100" value="${project.progress}" />
-      </label>
-      <label>
-        <span>Risk level</span>
-        <select name="riskLevel">
-          ${["Contained", "Elevated", "Critical"].map((risk) => `<option ${risk === project.riskLevel ? "selected" : ""}>${risk}</option>`).join("")}
-        </select>
-      </label>
-      <label>
-        <span>Team performance</span>
-        <input name="teamPerformance" type="number" min="0" max="100" value="${project.teamPerformance}" />
-      </label>
-      <button class="button primary" type="submit">${icon("check")}Save Health Update</button>
-    </form>
-    <p class="form-status" id="projectActionStatus" role="status"></p>
-  `;
-}
-
-function renderDetailChips(label, values = []) {
-  const items = Array.isArray(values) ? values.filter(Boolean) : [];
-  if (!items.length) {
-    return "";
-  }
-
-  return `
-    <div class="project-detail-group">
-      <span>${escapeHtml(label)}</span>
-      <div class="project-detail-chips">
-        ${items.map((item) => `<em>${escapeHtml(item)}</em>`).join("")}
-      </div>
-    </div>
-  `;
-}
-
-function renderProjectDetails(project) {
-  const details = project.details;
-  if (!details) {
-    return "";
-  }
-
-  const modules = Array.isArray(details.modules) ? details.modules.filter(Boolean) : [];
-  return `
-    <section class="project-detail-block" aria-label="${escapeHtml(project.name)} platform details">
-      <div class="project-detail-heading">
-        <span>Project details</span>
-        <strong>${escapeHtml(details.category || `${project.name} platform`)}</strong>
-        <p>${escapeHtml(details.summary || project.scope)}</p>
-      </div>
-      ${details.architecture ? `<p class="project-detail-architecture">${escapeHtml(details.architecture)}</p>` : ""}
-      ${renderDetailChips("Service types", details.serviceTypes)}
-      ${renderDetailChips("Actors / users", details.users)}
-      ${renderDetailChips("Operational outcomes", details.outcomes)}
-      ${modules.length ? `
-        <div class="project-detail-group">
-          <span>Core modules</span>
-          <div class="project-module-list">
-            ${modules.map((moduleItem) => `
-              <div>
-                <strong>${escapeHtml(moduleItem.name || moduleItem)}</strong>
-                ${moduleItem.responsibility ? `<small>${escapeHtml(moduleItem.responsibility)}</small>` : ""}
-              </div>
-            `).join("")}
-          </div>
-        </div>
-      ` : ""}
-    </section>
-  `;
-}
-
-function renderProfile() {
-  const project = selectedProject();
-  const actor = selectedActor();
-  const riskItems = actor.role === "Client/User" ? project.clientRisks : project.risks.concat(project.issues);
-  const teamValue = canSeeInternalMetrics(actor) ? `${project.teamPerformance}%` : "Restricted";
-  const clientValue = canSeeClientSatisfaction(actor) ? `${project.clientSatisfaction}%` : "Restricted";
-
-  $("#projectProfile").innerHTML = `
-    <div class="profile-header">
-      <span class="avatar">${escapeHtml(initials(project.name))}</span>
+function renderCustomerOverview(customer) {
+  $("#customerOverview").innerHTML = `
+    <div class="customer-header">
       <div>
-        <strong>${escapeHtml(project.name)}</strong>
-        <span>${escapeHtml(project.projectManager)} | ${escapeHtml(project.teamLead)}</span>
-      </div>
-    </div>
-    <div class="record-badge-row">
-      <span class="status-badge ${statusClass(project.status)}">${escapeHtml(project.status)}</span>
-      <span class="risk-badge ${riskClass(project.riskLevel)}">${escapeHtml(project.riskLevel)} risk</span>
-      <span class="environment-pill">${escapeHtml(project.environment || "Staging")}</span>
-    </div>
-    <p class="profile-scope">${escapeHtml(project.scope)}</p>
-    ${renderProjectDetails(project)}
-    <div class="profile-stats">
-      <div><span>Progress</span><strong>${project.progress}%</strong></div>
-      <div><span>Health</span><strong>${project.health}</strong></div>
-      <div><span>Team</span><strong>${escapeHtml(teamValue)}</strong></div>
-      <div><span>Client</span><strong>${escapeHtml(clientValue)}</strong></div>
-    </div>
-    <div class="renewal-detail">
-      <span>Delivery timeline</span>
-      <strong>${escapeHtml(project.timeline.milestone)} by ${escapeHtml(project.timeline.delivery)}</strong>
-      <span>Started ${escapeHtml(project.timeline.start)} | last updated ${escapeHtml(project.lastUpdated)}</span>
-    </div>
-    <ul class="signal-list">
-      ${riskItems.map((item) => `<li>${icon("alert")}<span>${escapeHtml(item)}</span></li>`).join("")}
-    </ul>
-    <div class="next-action-list">
-      ${project.nextActions.map((action) => `<span>${icon("check")}${escapeHtml(action)}</span>`).join("")}
-    </div>
-    ${renderProjectControls(project)}
-  `;
-
-  bindProfileForms(project);
-}
-
-function bindProfileForms(project) {
-  const updateForm = $("#projectUpdateForm");
-  if (updateForm) {
-    updateForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const formData = new FormData(updateForm);
-      try {
-        const payload = await apiRequest(`/api/projects/${encodeURIComponent(project.id)}`, {
-          method: "PATCH",
-          body: Object.fromEntries(formData.entries())
-        });
-        applyServerState(payload);
-        renderAll();
-        $("#projectActionStatus").textContent = "Project record updated.";
-      } catch (error) {
-        $("#projectActionStatus").textContent = error.message;
-      }
-    });
-  }
-
-  const feedbackForm = $("#clientFeedbackForm");
-  if (feedbackForm) {
-    feedbackForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const formData = new FormData(feedbackForm);
-      try {
-        const payload = await apiRequest(`/api/projects/${encodeURIComponent(project.id)}/feedback`, {
-          method: "POST",
-          body: Object.fromEntries(formData.entries())
-        });
-        applyServerState(payload);
-        renderAll();
-        $("#projectActionStatus").textContent = "Client feedback saved.";
-      } catch (error) {
-        $("#projectActionStatus").textContent = error.message;
-      }
-    });
-  }
-}
-
-function renderProjectWorkspace() {
-  const list = filteredProjects();
-  const visible = visibleProjectsForActor();
-  const selectedIsVisible = visible.some((project) => project.id === state.selectedId);
-
-  if (!selectedIsVisible && visible.length > 0) {
-    state.selectedId = visible[0].id;
-  }
-
-  if (!list.some((project) => project.id === state.selectedId) && list.length > 0) {
-    state.selectedId = list[0].id;
-  }
-
-  renderVisibilityBanner();
-  renderProjects();
-  renderProfile();
-  renderHealthScore();
-}
-
-function renderManagePanel() {
-  const actor = selectedActor();
-  const panel = $("#projectManagerPanel");
-  const status = $("#projectFormStatus");
-  const form = $("#projectForm");
-
-  if (canCreateProjects(actor)) {
-    panel.classList.remove("is-restricted");
-    form.hidden = false;
-    $("#createAccessPill").textContent = `${actor.role} create access`;
-    status.textContent = "";
-  } else {
-    panel.classList.add("is-restricted");
-    form.hidden = true;
-    $("#createAccessPill").textContent = "Read-only";
-    status.textContent = `${actor.role} cannot create new project records.`;
-  }
-}
-
-function selectProject(id) {
-  state.selectedId = id;
-  renderProjectWorkspace();
-  renderAlerts();
-  renderReports();
-}
-
-function resetProjectFilters() {
-  state.search = "";
-  state.status = "All";
-  state.risk = "All";
-  $("#projectSearch").value = "";
-  $("#statusFilter").value = "All";
-  $("#riskFilter").value = "All";
-}
-
-function renderHealthScore() {
-  const project = selectedProject();
-  const riskQuality = project.riskLevel === "Critical" ? 38 : project.riskLevel === "Elevated" ? 66 : 90;
-  const drivers = [
-    { label: "Project status", value: project.status === "On Track" ? 92 : project.status === "Watch" ? 70 : 44, weight: "20%" },
-    { label: "Progress tracking", value: project.progress, weight: "20%" },
-    { label: "Risks/issues", value: riskQuality, weight: "20%" },
-    { label: "Team performance", value: project.teamPerformance, weight: "15%" },
-    { label: "Client satisfaction", value: project.clientSatisfaction, weight: "15%" },
-    { label: "Delivery timeline", value: project.deliveryConfidence, weight: "10%" }
-  ];
-
-  $("#scoreGauge").style.setProperty("--score", project.health);
-  $("#scoreValue").textContent = project.health;
-  $("#scoreProject").textContent = project.name;
-  $("#scoreSummary").textContent = `${project.name} is ${project.status.toLowerCase()} with ${project.progress}% progress, ${project.riskLevel.toLowerCase()} risk, and ${project.deliveryConfidence}% delivery confidence.`;
-  $("#driverList").innerHTML = drivers.map((driver) => `
-    <div class="driver-row">
-      <span>${escapeHtml(driver.label)}</span>
-      <div class="progress-track"><div class="progress-fill" style="width: ${driver.value}%; background: ${driver.value < 55 ? "var(--red)" : driver.value < 75 ? "var(--amber)" : "var(--teal)"}"></div></div>
-      <strong>${escapeHtml(driver.weight)}</strong>
-    </div>
-  `).join("");
-}
-
-function renderAlerts() {
-  const actor = selectedActor();
-  const riskyProjects = visibleProjectsForActor().filter((project) => project.riskLevel !== "Contained" || project.issues.length);
-  const openAlerts = riskyProjects.filter((project) => !state.acknowledged.has(project.id));
-  $("#alertCount").textContent = `${openAlerts.length} open`;
-
-  $("#alertList").innerHTML = riskyProjects.map((project) => {
-    const acknowledged = state.acknowledged.has(project.id);
-    const canAck = canAcknowledgeRisk(project, actor);
-    const riskMessage = actor.role === "Client/User" ? project.clientRisks[0] : project.risks[0] || project.issues[0];
-    const criticalClass = project.riskLevel === "Critical" ? " is-critical" : "";
-    return `
-      <article class="alert-card${criticalClass}">
-        <div class="alert-top">
-          <div>
-            <h3>${escapeHtml(project.name)}</h3>
-            <p>${escapeHtml(project.projectManager)} | ${project.progress}% progress | delivery ${escapeHtml(project.timeline.delivery)}</p>
-          </div>
-          <span class="risk-badge ${riskClass(project.riskLevel)}">${escapeHtml(project.riskLevel)}</span>
+        <p class="eyebrow">Customer profile</p>
+        <h3>${escapeHtml(customer.name)}</h3>
+        <div class="customer-meta">
+          ${statusPill(customer.healthStatus, statusClass(customer.healthStatus))}
+          ${statusPill(customer.tier, "neutral")}
+          ${statusPill(customer.currentStatus, customer.healthStatus === "Red" ? "urgent" : "teal")}
         </div>
-        <p>${escapeHtml(riskMessage || "No active risk message.")}</p>
-        <div class="alert-actions">
-          <a class="button quiet" href="#project-${escapeHtml(project.id)}" data-select-alert="${escapeHtml(project.id)}">${icon("users")}View Record</a>
-          <button class="button ${acknowledged ? "quiet" : "primary"}" data-ack="${escapeHtml(project.id)}" ${canAck ? "" : "disabled"}>
-            ${acknowledged ? icon("check") + "Acknowledged" : icon("bell") + (canAck ? "Acknowledge" : "No Ack Access")}
-          </button>
-        </div>
-      </article>
-    `;
-  }).join("") || `
-    <article class="alert-card empty-state">
-      <h3>No visible risk alerts</h3>
-      <p>The current actor has no open project risks in scope.</p>
-    </article>
-  `;
-
-  $$("[data-select-alert]").forEach((button) => {
-    button.addEventListener("click", (event) => {
-      event.preventDefault();
-      resetProjectFilters();
-      selectProject(button.dataset.selectAlert);
-      history.pushState(null, "", `#project-${button.dataset.selectAlert}`);
-      scrollPageTo(document.querySelector("#projects"));
-      window.setTimeout(updateActiveNav, 350);
-    });
-  });
-
-  $$("[data-ack]").forEach((button) => {
-    button.addEventListener("click", async () => {
-      if (button.disabled) {
-        return;
-      }
-      try {
-        const payload = await apiRequest(`/api/projects/${encodeURIComponent(button.dataset.ack)}/ack`, { method: "POST" });
-        applyServerState(payload);
-        renderAll();
-      } catch (error) {
-        $("#alertCount").textContent = error.message;
-      }
-    });
-  });
-}
-
-function renderRoleOverview() {
-  const actor = selectedActor();
-  const role = selectedRole();
-  $("#activeRolePill").textContent = actor.role;
-  $("#roleOverview").innerHTML = `
-    <div class="profile-header">
-      <span class="avatar">${escapeHtml(initials(actor.name))}</span>
-      <div>
-        <strong>${escapeHtml(actor.name)}</strong>
-        <span>${escapeHtml(actor.organization)} | ${escapeHtml(actor.role)}</span>
       </div>
+      <span class="status-pill neutral">${escapeHtml(customer.domain)}</span>
     </div>
-    <div class="renewal-detail">
-      <span>Access level</span>
-      <strong>${escapeHtml(actor.accessLevel)}</strong>
-      <span>${escapeHtml(actor.responsibilities)}</span>
-    </div>
-    <ul class="signal-list">
-      ${role.permissions.map((permission) => `<li>${icon("check")}<span>${escapeHtml(permission)}</span></li>`).join("")}
-    </ul>
-  `;
-}
-
-function renderActors() {
-  $("#actorRows").innerHTML = actors.map((actor) => `
-    <tr class="${actor.id === state.activeActorId ? "is-selected" : ""}">
-      <td>
-        <div class="customer-name">${escapeHtml(actor.name)}</div>
-        <small>${escapeHtml(actor.organization)}</small>
-      </td>
-      <td>${escapeHtml(actor.role)}</td>
-      <td>${escapeHtml(actor.accessLevel)}</td>
-      <td>${escapeHtml(actor.responsibilities)}</td>
-    </tr>
-  `).join("");
-}
-
-function renderPermissionGrid() {
-  const permissions = ["View Records", "Create", "Edit", "Manage Users", "Acknowledge Risk", "Export"];
-  const allowed = {
-    Admin: ["View Records", "Create", "Edit", "Manage Users", "Acknowledge Risk", "Export"],
-    "Project Manager": ["View Records", "Create", "Edit", "Acknowledge Risk", "Export"],
-    "Team Lead": ["View Records", "Edit"],
-    Developer: ["View Records", "Edit"],
-    "Client/User": ["View Records"]
-  };
-
-  $("#permissionGrid").innerHTML = `
-    <div class="permission-cell permission-head">Role</div>
-    ${permissions.map((permission) => `<div class="permission-cell permission-head">${escapeHtml(permission)}</div>`).join("")}
-    ${roleDefinitions.map((role) => `
-      <div class="permission-cell permission-role">${escapeHtml(role.name)}</div>
-      ${permissions.map((permission) => `
-        <div class="permission-cell ${allowed[role.name].includes(permission) ? "is-allowed" : "is-denied"}">
-          ${allowed[role.name].includes(permission) ? icon("check") : icon("lock")}
+    <p class="muted" style="margin-top:14px">${escapeHtml(customer.summary)}</p>
+    <div class="meta-grid">
+      ${[
+        ["Project", customer.project],
+        ["Account owner", customer.accountOwner],
+        ["Project manager", customer.projectManager],
+        ["POD Head", customer.podHead],
+        ["Engagement", customer.engagementType],
+        ["Expected outcome", customer.expectedOutcomes[0]]
+      ].map(([label, value]) => `
+        <div class="meta-item">
+          <span>${escapeHtml(label)}</span>
+          <strong>${escapeHtml(value)}</strong>
         </div>
       `).join("")}
-    `).join("")}
+    </div>
   `;
 }
 
-function renderAccessControl() {
-  renderRoleOverview();
-  renderActors();
-  renderPermissionGrid();
-}
-
-function renderReports() {
-  const visible = visibleProjectsForActor();
-  const reportProjects = visible.length ? visible : projects;
-  $("#forecastChart").innerHTML = reportProjects.map((project) => `
-    <div class="forecast-bar">
-      <div class="forecast-fill" style="height: ${Math.max(44, project.deliveryConfidence * 1.8)}px; background: ${project.deliveryConfidence < 60 ? "var(--red)" : project.deliveryConfidence < 80 ? "var(--amber)" : "var(--blue)"}"></div>
-      <span>${escapeHtml(project.name)}<br>${project.deliveryConfidence}%</span>
-    </div>
-  `).join("");
-
-  const statusGroups = ["On Track", "Watch", "At Risk"].map((status) => {
-    const count = visible.filter((project) => project.status === status).length;
-    const value = visible.length ? Math.round((count / visible.length) * 100) : 0;
-    return { label: status, count, value };
-  });
-
-  $("#statusReport").innerHTML = statusGroups.map((status) => `
-    <div class="segment-row">
-      <span>${escapeHtml(status.label)}</span>
-      <div class="progress-track"><div class="progress-fill" style="width: ${status.value}%; background: ${status.label === "At Risk" ? "var(--red)" : status.label === "Watch" ? "var(--amber)" : "var(--teal)"}"></div></div>
-      <strong>${status.count}</strong>
-    </div>
-  `).join("");
-
-  const highRisk = visible.filter((project) => project.riskLevel !== "Contained");
-  const lowest = [...visible].sort((a, b) => a.health - b.health)[0];
-  const brief = [
-    `${visible.length} project record${visible.length === 1 ? "" : "s"} visible to ${selectedActor().name}.`,
-    highRisk.length ? `${highRisk.length} project${highRisk.length === 1 ? "" : "s"} need risk review.` : "No elevated risks are visible in the current scope.",
-    lowest ? `${lowest.name} has the lowest visible health score at ${lowest.health}.` : "No projects are visible for reporting."
-  ];
-
-  $("#briefList").innerHTML = brief.map((item) => `<li>${icon("check")}<span>${escapeHtml(item)}</span></li>`).join("");
-
-  const exportButton = $("#exportReport");
-  exportButton.disabled = !canExportReports();
-  if (!canExportReports()) {
-    $("#reportNote").textContent = "Export requires Admin or Project Manager access.";
-  } else if (!$("#reportNote").textContent.includes("prepared")) {
-    $("#reportNote").textContent = "";
-  }
-}
-
-function escalationPriority(project) {
-  if (project.status === "At Risk" || project.riskLevel === "Critical" || project.deliveryConfidence < 60 || project.clientSatisfaction < 60) {
-    return "High";
-  }
-
-  if (project.status === "Watch" || project.riskLevel === "Elevated" || project.progress < 65 || project.deliveryConfidence < 80) {
-    return "Medium";
-  }
-
-  return "Low";
-}
-
-function escalationTrigger(project) {
-  const signals = [];
-
-  if (project.riskLevel !== "Contained") {
-    signals.push(`${project.riskLevel.toLowerCase()} risk`);
-  }
-  if (project.status !== "On Track") {
-    signals.push(`${project.status.toLowerCase()} status`);
-  }
-  if (project.progress < 65) {
-    signals.push(`${project.progress}% progress`);
-  }
-  if (project.deliveryConfidence < 80) {
-    signals.push(`${project.deliveryConfidence}% delivery confidence`);
-  }
-  if (project.clientSatisfaction < 75) {
-    signals.push(`${project.clientSatisfaction}% client satisfaction`);
-  }
-
-  return signals.length ? signals.join(" + ") : "Healthy trend with watchlist monitoring";
-}
-
-function proposalProfileFor(project) {
-  const profiles = {
-    signal: {
-      workflow: "AI-powered security service provider platform for managing patrolling, dedicated shifts, guard operations, live tracking, incidents, billing, and analytics.",
-      services: ["Patrolling", "Dedicated Shifts"],
-      modules: [
-        "Authentication & User Management",
-        "Guard Management Module",
-        "Dedicated Shift Management",
-        "Patrolling Management Module",
-        "Client Management Module",
-        "Attendance & Real-Time Tracking",
-        "Incident Reporting System",
-        "Communication & Notifications Module",
-        "Billing & Payment Management",
-        "Reports & Analytics Dashboard",
-        "AI & Monitoring Features"
-      ],
-      riskAreas: [
-        "Patrol route/checkpoint timing accuracy",
-        "Guard attendance, GPS tracking, and live location reliability",
-        "Dedicated shift scheduling, guard assignment, and supervisor approval",
-        "Incident/emergency notification SLA and documentation quality",
-        "Billing accuracy across patrolling and fixed-shift service charges"
-      ],
-      clientBehavior: "Security clients care about coverage transparency, verified guard presence, incident response speed, and clear billing history for patrolling and dedicated shifts.",
-      operationalContext: "Security operations pilot is the current milestone, so early warning should monitor missed checkpoints, late check-ins, unfilled dedicated shifts, incident-response delays, and billing mismatches.",
-      alerts: [
-        "Missed patrol checkpoint or route timing threshold",
-        "Unassigned dedicated shift or late guard check-in",
-        "Incident report lacks required documentation or supervisor review",
-        "Emergency notification SLA is not acknowledged",
-        "Billing variance appears between assigned service hours and invoiced charges"
-      ]
-    },
-    "rei-blackbook": {
-      workflow: "Retail intelligence migration with legacy data normalization, SKU mapping, payment feed retries, and analytics ownership review.",
-      riskAreas: [
-        "Legacy SKU and field mapping gaps",
-        "Analytics ownership decisions",
-        "Payment feed retry defects during integration hardening"
-      ],
-      clientBehavior: "Multi-stakeholder analytics review; client decisions slow down when ownership of fields or reporting definitions is unresolved.",
-      operationalContext: "Integration hardening is active, so escalation prevention should watch migration dry-run quality and unresolved data-governance decisions.",
-      alerts: [
-        "Migration dry run exposes duplicate SKU mapping",
-        "Client analytics review leaves field ownership unresolved",
-        "Payment feed retry defects remain open near hardening checkpoint"
-      ]
-    },
-    "cafe-zupas": {
-      workflow: "POS pilot recovery with location readiness, receipt sync validation, franchise training assets, and August release replanning.",
-      riskAreas: [
-        "POS pilot defects blocking expansion",
-        "Franchise training content approval",
-        "Receipt sync defects and release milestone replanning"
-      ],
-      clientBehavior: "Operational approval pattern; restaurant rollout cannot expand until franchise training and pilot defects are resolved together.",
-      operationalContext: "The project is in recovery mode, so alerts should prioritize blockers that prevent location expansion and executive sponsor alignment.",
-      alerts: [
-        "POS receipt sync defect blocks location rollout",
-        "Franchise training assets not approved for field teams",
-        "August milestone needs replanning with executive sponsor"
-      ]
-    }
-  };
-
-  return profiles[project.id] || {
-    workflow: project.scope,
-    riskAreas: project.risks,
-    clientBehavior: "Client behavior should be learned from satisfaction feedback, approval velocity, and visible risk acknowledgements.",
-    operationalContext: project.timeline.milestone,
-    alerts: project.risks.concat(project.issues).slice(0, 3)
-  };
-}
-
-const escalationDriverGroups = [
-  {
-    title: "Delivery, Scope & Planning",
-    summary: "Early warnings for timeline pressure, unclear direction, and delayed decisions.",
-    items: [
-      "Delay in project timelines or missed deadlines",
-      "Unclear requirements or frequent scope changes",
-      "Lack of proper project planning or risk management",
-      "Delays in approvals, feedback, or decision-making from stakeholders"
-    ]
-  },
-  {
-    title: "Communication, Ownership & Alignment",
-    summary: "Signals that teams, stakeholders, or owners are no longer moving together.",
-    items: [
-      "Poor communication between teams or stakeholders",
-      "Misalignment between business and technical teams",
-      "Lack of ownership or accountability within the team",
-      "Inadequate documentation or knowledge transfer gaps"
-    ]
-  },
-  {
-    title: "Quality, Operations & Compliance",
-    summary: "Product, reliability, testing, security, and operational health risks.",
-    items: [
-      "Quality issues or recurring bugs",
-      "Performance or scalability issues in the system",
-      "Security concerns or compliance issues",
-      "Incomplete testing or deployment failures",
-      "Frequent production incidents or downtime"
-    ]
-  },
-  {
-    title: "Resources, Budget & Dependencies",
-    summary: "Capacity, skill, cost, and external dependency blockers.",
-    items: [
-      "Resource unavailability or lack of skilled team members",
-      "Budget overruns or unexpected costs",
-      "Dependency blockers from third-party services or teams"
-    ]
-  },
-  {
-    title: "Client, Support & Visibility",
-    summary: "Client experience, support speed, issue resolution, and monitoring visibility.",
-    items: [
-      "Client dissatisfaction or unmet expectations",
-      "Slow response time from the development/support team",
-      "Inefficient issue tracking and resolution process",
-      "Real-time monitoring/reporting issues causing delayed visibility into problems"
-    ]
-  }
-];
-
-function escalationDriverCount() {
-  return escalationDriverGroups.reduce((sum, group) => sum + group.items.length, 0);
-}
-
-function renderEscalationDrivers() {
-  const container = $("#proposalEscalationDrivers");
-  if (!container) {
-    return;
-  }
-
-  container.innerHTML = escalationDriverGroups.map((group) => `
-    <article class="proposal-driver-card">
+function renderScoreCard(customer) {
+  const color = statusColor(customer.healthStatus);
+  $("#scoreCard").innerHTML = `
+    <div class="panel-title">
       <div>
-        <span>${group.items.length} signals</span>
-        <h4>${escapeHtml(group.title)}</h4>
-        <p>${escapeHtml(group.summary)}</p>
+        <p class="eyebrow">Health score</p>
+        <h3>Explainable RAG status</h3>
       </div>
-      <ul>
-        ${group.items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
-      </ul>
-    </article>
-  `).join("");
+      ${statusPill(customer.healthStatus, statusClass(customer.healthStatus))}
+    </div>
+    <div class="score-hero">
+      <div class="score-ring" style="--score:${customer.score};--score-color:${color}">
+        <span class="score-ring-content">
+          <strong>${customer.score}</strong>
+          <span>/ 100</span>
+        </span>
+      </div>
+      <div class="score-copy">
+        <strong>${escapeHtml(customer.primaryRisk)}</strong>
+        <p>Score combines delivery, sentiment, CSAT, escalation, goal alignment, responsiveness, and relationship confidence.</p>
+      </div>
+    </div>
+    <div class="score-breakdown">
+      ${Object.entries(customer.breakdown).map(([key, value]) => `
+        <div class="breakdown-row">
+          <strong>${escapeHtml(scoreLabels[key])}</strong>
+          <span class="bar-track"><span style="width:${value}%;background:${value >= 75 ? "var(--green)" : value >= 45 ? "var(--amber)" : "var(--red)"}"></span></span>
+          <span>${value}</span>
+        </div>
+      `).join("")}
+    </div>
+  `;
 }
 
-function renderProposal() {
-  const visible = visibleProjectsForActor();
-  const source = visible.length ? visible : projects;
-  const highPriority = source.filter((project) => escalationPriority(project) === "High").length;
-  const mediumPriority = source.filter((project) => escalationPriority(project) === "Medium").length;
-  const avgDelivery = average(source, "deliveryConfidence");
-  const avgSatisfaction = average(source, "clientSatisfaction");
+function renderGoals(customer) {
+  $("#goalsCard").innerHTML = `
+    <div class="panel-title">
+      <div>
+        <p class="eyebrow">Goals</p>
+        <h3>Success criteria and outcomes</h3>
+      </div>
+      ${icon("target")}
+    </div>
+    <div class="goal-list">
+      ${customer.goals.map((goal, index) => `
+        <div class="goal-item">
+          <strong>${escapeHtml(goal)}</strong>
+          <span>${escapeHtml(customer.successCriteria[index] || customer.expectedOutcomes[index] || "Tracked as customer success criterion.")}</span>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
 
-  if ($("#proposalScopePill")) {
-    $("#proposalScopePill").textContent = roleScopeLabel();
-  }
+function renderRootCauses(customer) {
+  $("#rootCauseCard").innerHTML = `
+    <div class="panel-title">
+      <div>
+        <p class="eyebrow">Root cause</p>
+        <h3>Why the score moved</h3>
+      </div>
+      ${statusPill("Evidence cited", "teal")}
+    </div>
+    <div class="root-cause-list">
+      ${customer.rootCauses.map((cause) => `
+        <div class="root-cause-item">
+          <strong>${escapeHtml(cause.title)}</strong>
+          <span>${escapeHtml(cause.detail)}</span>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
 
-  renderProposalRealtimeStats();
-  renderEscalationDrivers();
+function renderSignalTimeline(customer) {
+  const customerSignals = signals.filter((signal) => signal.customerId === customer.id).slice(0, 6);
+  $("#signalTimeline").innerHTML = `
+    <div class="panel-title">
+      <div>
+        <p class="eyebrow">Signal timeline</p>
+        <h3>Evidence linked to this account</h3>
+      </div>
+      ${statusPill(`${customerSignals.length} signals`, "neutral")}
+    </div>
+    <div class="timeline-list">
+      ${customerSignals.map((signal) => {
+        const evidence = canViewSensitiveSignal(signal)
+          ? escapeHtml(signal.evidence)
+          : `<span class="locked-evidence">${icon("lock")} Evidence restricted for ${escapeHtml(state.currentUser.role)}</span>`;
+        return `
+          <div class="timeline-item">
+            <strong>${escapeHtml(signal.source)} | ${escapeHtml(signal.type)}</strong>
+            <div class="signal-meta">
+              ${statusPill(signal.severity, severityClass(signal.severity))}
+              ${statusPill(`${signal.confidence}%`, "neutral")}
+              ${statusPill(signal.status, signal.status === "Needs review" ? "amber" : "green")}
+            </div>
+            <p>${escapeHtml(signal.risk)}</p>
+            <div class="evidence-box">${evidence}</div>
+          </div>
+        `;
+      }).join("") || `<div class="timeline-item"><strong>No signals</strong><p>No sample signals are attached to this customer yet.</p></div>`}
+    </div>
+  `;
+}
 
-  $("#proposalSignalGrid").innerHTML = source.map((project) => {
-    const priority = escalationPriority(project);
-    const profile = proposalProfileFor(project);
-    const nextAction = project.nextActions[0] || "Continue monitoring current workflow signals.";
+function renderDetailActions(customer) {
+  const items = recommendations.filter((rec) => rec.customerId === customer.id);
+  $("#detailActions").innerHTML = `
+    <div class="panel-title">
+      <div>
+        <p class="eyebrow">Recommended actions</p>
+        <h3>Human-owned recovery workflow</h3>
+      </div>
+      ${statusPill(userCan("approveRecommendation") ? "Can approve" : "Approval restricted", userCan("approveRecommendation") ? "teal" : "neutral")}
+    </div>
+    <div class="action-list">
+      ${items.map((rec) => `
+        <div class="action-item">
+          ${statusPill(rec.status, rec.status === "Pending review" ? "amber" : rec.status === "Approved" ? "green" : "neutral")}
+          <strong>${escapeHtml(rec.action)}</strong>
+          <p>${escapeHtml(rec.reason)}</p>
+          <p><strong>Owner:</strong> ${escapeHtml(rec.owner)} | <strong>Due:</strong> ${escapeHtml(rec.dueDate)}</p>
+        </div>
+      `).join("") || `<div class="action-item"><strong>No recommendation</strong><p>Continue monitoring the current signal set.</p></div>`}
+    </div>
+  `;
+}
+
+function renderCustomerDetail() {
+  const customer = selectedCustomer();
+  $("#selectedCustomerPill").textContent = `${customer.name} | ${customer.score}`;
+  renderCustomerOverview(customer);
+  renderScoreCard(customer);
+  renderGoals(customer);
+  renderRootCauses(customer);
+  renderSignalTimeline(customer);
+  renderDetailActions(customer);
+}
+
+function renderSignalSourceOptions() {
+  const select = $("#signalSourceFilter");
+  const current = select.value || state.signalSource;
+  const sources = Array.from(new Set(signalsForVisibleCustomers().map((signal) => signal.source))).sort();
+  select.innerHTML = `<option value="All">All sources</option>${sources.map((source) => `<option value="${escapeHtml(source)}">${escapeHtml(source)}</option>`).join("")}`;
+  select.value = sources.includes(current) ? current : "All";
+  state.signalSource = select.value;
+}
+
+function renderSignals() {
+  renderSignalSourceOptions();
+  const items = filteredSignals();
+  $("#signalCount").textContent = `${items.length} signals`;
+  $("#signalInbox").innerHTML = items.map((signal) => {
+    const customer = customerById(signal.customerId);
+    const evidence = canViewSensitiveSignal(signal)
+      ? escapeHtml(signal.evidence)
+      : `<span class="locked-evidence">${icon("lock")} Restricted evidence. Summary remains visible.</span>`;
+    const canReview = userCan("reviewSignals");
     return `
-      <article class="proposal-signal-card is-${priority.toLowerCase()}">
-        <div class="proposal-card-head">
+      <article class="signal-card">
+        <div class="signal-card-head">
           <div>
-            <span class="proposal-priority">${escapeHtml(priority)} priority</span>
-            <h4>${escapeHtml(project.name)}</h4>
+            <p class="eyebrow">${escapeHtml(signal.source)}</p>
+            <h3>${escapeHtml(customer.name)}</h3>
           </div>
-          <strong>${project.health}</strong>
+          ${statusPill(signal.severity, severityClass(signal.severity))}
         </div>
-        <div class="proposal-workflow-summary">
-          <span>Workflow</span>
-          <p>${escapeHtml(profile.workflow)}</p>
+        <div class="signal-meta">
+          ${statusPill(signal.type, "neutral")}
+          ${statusPill(signal.sentiment, signal.sentiment === "Negative" ? "red" : signal.sentiment === "Positive" ? "green" : "neutral")}
+          ${statusPill(`${signal.confidence}% confidence`, signal.confidence >= 90 ? "teal" : signal.confidence >= 75 ? "neutral" : "amber")}
+          ${statusPill(signal.status, signal.status === "Needs review" ? "amber" : signal.status === "Ignored" ? "neutral" : "green")}
         </div>
-        ${profile.services ? `
-          <div class="proposal-chip-section">
-            <span>Service types</span>
-            <div>${profile.services.map((service) => `<em>${escapeHtml(service)}</em>`).join("")}</div>
-          </div>
-        ` : ""}
-        ${profile.modules ? `
-          <div class="proposal-chip-section">
-            <span>Core modules</span>
-            <div>${profile.modules.map((moduleName) => `<em>${escapeHtml(moduleName)}</em>`).join("")}</div>
-          </div>
-        ` : ""}
-        <dl>
-          <div>
-            <dt>Alert signals</dt>
-            <dd>
-              <ul class="proposal-alert-list">
-                ${profile.alerts.map((alert) => `<li>${escapeHtml(alert)}</li>`).join("")}
-              </ul>
-            </dd>
-          </div>
-          <div>
-            <dt>Risk areas</dt>
-            <dd>
-              <ul class="proposal-alert-list">
-                ${profile.riskAreas.map((riskArea) => `<li>${escapeHtml(riskArea)}</li>`).join("")}
-              </ul>
-            </dd>
-          </div>
-          <div>
-            <dt>Score inputs</dt>
-            <dd>${escapeHtml(escalationTrigger(project))}</dd>
-          </div>
-          <div>
-            <dt>Client behavior</dt>
-            <dd>${escapeHtml(profile.clientBehavior)}</dd>
-          </div>
-          <div>
-            <dt>Delivery / operations</dt>
-            <dd>${escapeHtml(`${project.status} | ${project.progress}% progress | ${project.deliveryConfidence}% delivery confidence. ${profile.operationalContext}`)}</dd>
-          </div>
-          <div>
-            <dt>Owner</dt>
-            <dd>${escapeHtml(project.projectManager)} with ${escapeHtml(project.teamLead)}</dd>
-          </div>
-          <div>
-            <dt>Prevention action</dt>
-            <dd>${escapeHtml(nextAction)}</dd>
-          </div>
-        </dl>
+        <p>${escapeHtml(signal.risk)}</p>
+        <div class="evidence-box">${evidence}</div>
+        <div class="signal-actions">
+          <button class="button quiet" type="button" data-select-customer="${escapeHtml(signal.customerId)}">Open customer</button>
+          <button class="button success" type="button" data-signal-review="${escapeHtml(signal.id)}" ${canReview ? "" : "disabled"}>Mark reviewed</button>
+          <button class="button danger" type="button" data-signal-ignore="${escapeHtml(signal.id)}" ${canReview ? "" : "disabled"}>Ignore</button>
+        </div>
       </article>
     `;
   }).join("");
+}
 
-  $("#proposalMetrics").innerHTML = [
-    { label: "Tracked escalation drivers", value: escalationDriverCount() },
-    { label: "Driver categories", value: escalationDriverGroups.length },
-    { label: "High-priority escalation candidates", value: highPriority },
-    { label: "Medium-priority watchlist projects", value: mediumPriority },
-    { label: "Average delivery confidence", value: `${avgDelivery}%` },
-    { label: "Average client satisfaction", value: `${avgSatisfaction}%` }
-  ].map((metric) => `
-    <div>
-      <strong>${escapeHtml(metric.value)}</strong>
-      <span>${escapeHtml(metric.label)}</span>
+function renderRecommendations() {
+  const visibleIds = new Set(visibleCustomers().map((customer) => customer.id));
+  const items = recommendations.filter((rec) => visibleIds.has(rec.customerId));
+  $("#recommendationBoard").innerHTML = items.map((rec) => {
+    const customer = customerById(rec.customerId);
+    const canApprove = userCan("approveRecommendation");
+    const canAssign = userCan("assignOwner");
+    return `
+      <article class="recommendation-card">
+        <div class="recommendation-head">
+          <div>
+            <p class="eyebrow">${escapeHtml(customer.name)}</p>
+            <h3>${escapeHtml(rec.action)}</h3>
+          </div>
+          ${statusPill(rec.riskLevel, statusClass(rec.riskLevel))}
+        </div>
+        <p>${escapeHtml(rec.reason)}</p>
+        <div class="recommendation-meta">
+          <span><strong>Owner</strong>${escapeHtml(rec.owner)}</span>
+          <span><strong>Due date</strong>${escapeHtml(rec.dueDate)}</span>
+          <span><strong>Status</strong>${escapeHtml(rec.status)}</span>
+          <span><strong>Approval</strong>${rec.approvalRequired ? "Required" : "Not required"}</span>
+        </div>
+        <div class="recommendation-actions">
+          <button class="button success" type="button" data-rec-approve="${escapeHtml(rec.id)}" ${canApprove ? "" : "disabled"}>Approve</button>
+          <button class="button danger" type="button" data-rec-reject="${escapeHtml(rec.id)}" ${canApprove ? "" : "disabled"}>Reject</button>
+          <button class="button quiet" type="button" data-rec-assign="${escapeHtml(rec.id)}" ${canAssign ? "" : "disabled"}>Assign owner</button>
+        </div>
+      </article>
+    `;
+  }).join("");
+}
+
+function renderScoring() {
+  const canChange = userCan("changeScoring");
+  $("#scoringAccessPill").textContent = canChange ? "Editable for this role" : "Read-only for this role";
+  const total = Object.values(scoringWeights).reduce((sum, value) => sum + Number(value), 0);
+  $("#weightTotal").textContent = `${total}%`;
+  $("#weightTotal").className = `status-pill ${total === 100 ? "neutral" : "urgent"}`;
+  $("#weightList").innerHTML = Object.entries(scoringWeights).map(([key, value]) => `
+    <label class="weight-row">
+      <strong>${escapeHtml(scoreLabels[key])}</strong>
+      <input type="range" min="0" max="40" value="${value}" data-weight-key="${escapeHtml(key)}" ${canChange ? "" : "disabled"} />
+      <span>${value}%</span>
+    </label>
+  `).join("");
+
+  $("#thresholdGrid").innerHTML = [
+    ["Green", "75-100", "Healthy"],
+    ["Amber", "45-74", "Needs attention"],
+    ["Red", "0-44", "High risk"]
+  ].map(([label, range, meaning]) => `
+    <div class="threshold-card">
+      ${statusPill(label, statusClass(label))}
+      <span><strong>${escapeHtml(range)}</strong>${escapeHtml(meaning)}</span>
+    </div>
+  `).join("");
+
+  $("#confidenceTable").innerHTML = confidenceBands.map(([range, behavior]) => `
+    <div class="confidence-row">
+      <strong>${escapeHtml(range)}</strong>
+      <span>${escapeHtml(behavior)}</span>
+    </div>
+  `).join("");
+
+  $("#guardrailList").innerHTML = guardrails.map(([title, detail]) => `
+    <div class="guardrail-item">
+      ${icon("shield")}
+      <span><strong>${escapeHtml(title)}</strong><span>${escapeHtml(detail)}</span></span>
     </div>
   `).join("");
 }
 
-function updateActiveNav() {
-  const headerOffset = $("#topNav").getBoundingClientRect().bottom + 32;
-  const sections = $$("main section[id]");
-  let activeId = "";
+function renderWorkflow() {
+  $("#agentGrid").innerHTML = agents.map(([name, responsibility, stateLabel]) => `
+    <article class="agent-card">
+      <h3>${escapeHtml(name)}</h3>
+      <p>${escapeHtml(responsibility)}</p>
+      ${statusPill(stateLabel, stateLabel.includes("Rule") || stateLabel.includes("Mock") ? "neutral" : "teal")}
+    </article>
+  `).join("");
 
-  sections.forEach((section) => {
-    if (section.getBoundingClientRect().top <= headerOffset) {
+  $("#integrationGrid").innerHTML = integrations.map(([name, detail, phase]) => `
+    <article class="integration-card">
+      <h3>${escapeHtml(name)}</h3>
+      <p>${escapeHtml(detail)}</p>
+      ${statusPill(phase, "neutral")}
+    </article>
+  `).join("");
+
+  $("#releaseList").innerHTML = releasePlan.map(([phase, detail]) => `
+    <div class="release-item">
+      <strong>${escapeHtml(phase)}</strong>
+      <span>${escapeHtml(detail)}</span>
+    </div>
+  `).join("");
+}
+
+function renderAccess() {
+  const role = state.currentUser.role;
+  const config = roleConfig();
+  $("#activeRolePill").textContent = role;
+  $("#roleOverview").innerHTML = `
+    <div class="role-summary">
+      <p class="eyebrow">Active persona</p>
+      <h3>${escapeHtml(role)}</h3>
+      <p>${escapeHtml(config.scope)}</p>
+      <div class="role-chip-list">
+        ${config.nav.map((id) => statusPill(navItems.find((item) => item.id === id)?.label || id, "neutral")).join("")}
+      </div>
+      <div class="evidence-box"><strong>Restricted areas:</strong> ${escapeHtml(config.restricted)}</div>
+    </div>
+  `;
+
+  const rows = [
+    ["View sensitive evidence", "Email summaries, commercial notes, and escalation details", config.permissions.viewSensitive],
+    ["Approve recommendation", "Approve or reject major recovery actions", config.permissions.approveRecommendation],
+    ["Assign owner", "Assign accountable owner for recommended action", config.permissions.assignOwner],
+    ["Change scoring rules", "Edit weights and RAG threshold model", config.permissions.changeScoring],
+    ["Configure integrations", "Manage Jira, email, MOM, CSAT, and LLM source setup", config.permissions.configureIntegrations],
+    ["Manage users and roles", "Change users, role mapping, and access scope", config.permissions.manageUsers]
+  ];
+
+  $("#permissionGrid").innerHTML = rows.map(([label, detail, allowed]) => {
+    const text = allowed === true ? "Allowed" : allowed === false ? "Restricted" : String(allowed);
+    const tone = allowed === true ? "green" : allowed === false ? "neutral" : "amber";
+    return `
+      <div class="permission-row">
+        <strong>${escapeHtml(label)}</strong>
+        <span>${escapeHtml(detail)}</span>
+        <span class="permission-state">${statusPill(text, tone)}</span>
+      </div>
+    `;
+  }).join("");
+}
+
+function renderReports() {
+  $("#successChecklist").innerHTML = successChecklist.map((item) => `
+    <div class="check-item">
+      <strong>${icon("check")} ${escapeHtml(item)}</strong>
+      <span>Included in this professional MVP website flow.</span>
+    </div>
+  `).join("");
+
+  $("#openQuestions").innerHTML = openQuestions.map((item) => `
+    <div class="question-item">
+      <strong>${escapeHtml(item)}</strong>
+      <span>Decision required before pilot or production rollout.</span>
+    </div>
+  `).join("");
+}
+
+function fullDemoUser() {
+  return demoUsers.find((user) => user.id === "admin") || demoUsers[0];
+}
+
+function visibleStepIndex(index) {
+  const allowed = new Set(roleConfig().nav);
+  const visibleSteps = demoSteps
+    .map((step, stepIndex) => ({ ...step, stepIndex }))
+    .filter((step) => allowed.has(step.section));
+  if (!visibleSteps.length) return 0;
+  const normalized = ((index % visibleSteps.length) + visibleSteps.length) % visibleSteps.length;
+  return visibleSteps[normalized].stepIndex;
+}
+
+function currentDemoStep() {
+  return demoSteps[state.demoStepIndex] || demoSteps[0];
+}
+
+function focusSection(sectionId) {
+  const section = document.getElementById(sectionId);
+  if (!section || section.hidden) return false;
+  $$("[data-demo-focus]").forEach((item) => item.removeAttribute("data-demo-focus"));
+  section.setAttribute("data-demo-focus", "true");
+  section.scrollIntoView({ behavior: "smooth", block: "start" });
+  window.setTimeout(updateActiveNav, 300);
+  return true;
+}
+
+function renderDemoBar() {
+  const bar = $("#demoBar");
+  if (!bar || !state.currentUser) return;
+  const allowed = new Set(roleConfig().nav);
+  const availableCount = demoSteps.filter((step) => allowed.has(step.section)).length || demoSteps.length;
+  const step = currentDemoStep();
+  const visibleOrdinal = demoSteps.filter((item, index) => allowed.has(item.section) && index <= state.demoStepIndex).length || 1;
+  bar.classList.toggle("is-active", state.demoMode);
+  $("#demoStepCount").textContent = state.demoMode ? `${visibleOrdinal}/${availableCount}` : "Demo";
+  $("#demoStepTitle").textContent = state.demoMode ? step.title : "Team walkthrough";
+  $("#demoStepBody").textContent = state.demoMode
+    ? step.body
+    : "Use this rail during the meeting: it turns the site into a guided clickable prototype.";
+  $("#demoStart").textContent = state.demoMode ? "Restart" : "Start walkthrough";
+  $("#demoPrev").disabled = !state.demoMode;
+  $("#demoNext").disabled = !state.demoMode;
+  $("#demoExit").disabled = !state.demoMode;
+}
+
+function startDemo() {
+  state.currentUser = fullDemoUser();
+  localStorage.setItem(STORAGE_KEY, state.currentUser.id);
+  $("#login").hidden = true;
+  $("#appShell").hidden = false;
+  document.body.classList.remove("auth-locked");
+  document.body.classList.add("is-authenticated");
+  state.demoMode = true;
+  state.demoStepIndex = 0;
+  state.selectedCustomerId = "cafe-zupas";
+  state.search = "";
+  state.statusFilter = "All";
+  state.tierFilter = "All";
+  renderAll();
+  focusDemoStep();
+}
+
+function focusDemoStep() {
+  const step = currentDemoStep();
+  if (step.customerId) {
+    state.selectedCustomerId = step.customerId;
+    renderCustomerDetail();
+    renderPortfolio();
+  }
+  if (!focusSection(step.section)) {
+    state.demoStepIndex = visibleStepIndex(state.demoStepIndex + 1);
+    focusSection(currentDemoStep().section);
+  }
+  renderDemoBar();
+}
+
+function moveDemoStep(direction) {
+  if (!state.demoMode) return;
+  const allowed = new Set(roleConfig().nav);
+  let next = state.demoStepIndex;
+  for (let attempts = 0; attempts < demoSteps.length; attempts += 1) {
+    next = (next + direction + demoSteps.length) % demoSteps.length;
+    if (allowed.has(demoSteps[next].section)) break;
+  }
+  state.demoStepIndex = next;
+  focusDemoStep();
+}
+
+function stopDemo() {
+  state.demoMode = false;
+  $$("[data-demo-focus]").forEach((item) => item.removeAttribute("data-demo-focus"));
+  renderDemoBar();
+}
+
+function applyMetricFilter(filter) {
+  state.search = "";
+  state.statusFilter = "All";
+  state.tierFilter = "All";
+  if (["Green", "Amber", "Red"].includes(filter)) {
+    state.statusFilter = filter;
+    const firstMatch = visibleCustomers().find((customer) => customer.healthStatus === filter);
+    if (firstMatch) state.selectedCustomerId = firstMatch.id;
+  } else if (filter === "tier1") {
+    state.tierFilter = "Tier 1";
+  }
+  $("#globalSearch").value = "";
+  $("#portfolioSearch").value = "";
+  $("#statusFilter").value = state.statusFilter;
+  $("#tierFilter").value = state.tierFilter;
+  renderPortfolio();
+  if (filter === "reviews") {
+    $("#recommendations")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  } else {
+    $("#portfolio")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+
+function renderAll() {
+  normalizeCustomers();
+  renderSession();
+  renderNav();
+  renderDashboard();
+  renderPortfolio();
+  renderCustomerDetail();
+  renderSignals();
+  renderRecommendations();
+  renderScoring();
+  renderWorkflow();
+  renderAccess();
+  renderReports();
+  renderDemoBar();
+  updateActiveNav();
+}
+
+function updateActiveNav() {
+  if (!state.currentUser) return;
+  const visibleSections = navItems
+    .map((item) => document.getElementById(item.id))
+    .filter((section) => section && !section.hidden);
+  let activeId = visibleSections[0]?.id || "dashboard";
+  const headerBottom = $(".site-header")?.getBoundingClientRect().bottom || 0;
+  visibleSections.forEach((section) => {
+    const rect = section.getBoundingClientRect();
+    if (rect.top <= headerBottom + 120) {
       activeId = section.id;
     }
   });
-
-  $$("#topNav a[href^='#']").forEach((link) => {
-    const isActive = link.getAttribute("href") === `#${activeId}`;
-    link.classList.toggle("is-active", isActive);
-    if (isActive) {
-      link.setAttribute("aria-current", "page");
-    } else {
-      link.removeAttribute("aria-current");
-    }
+  $$("#topNav a").forEach((link) => {
+    link.classList.toggle("is-active", link.getAttribute("href") === `#${activeId}`);
   });
 }
 
-function closeMobileNav() {
-  $("#topNav").classList.remove("is-open");
-  $("#navToggle").setAttribute("aria-expanded", "false");
-}
-
-function bindSectionLinks() {
-  $$("a[href^='#']").forEach((link) => {
-    if (link.dataset.projectLink || link.dataset.selectAlert) {
-      return;
-    }
-
-    link.addEventListener("click", (event) => {
-      const href = link.getAttribute("href");
-      const target = href && href.length > 1 ? document.querySelector(href) : null;
-
-      if (!target) {
-        return;
-      }
-
-      event.preventDefault();
-      closeMobileNav();
-      scrollPageTo(target);
-      history.pushState(null, "", href);
-      updateActiveNav();
-      window.setTimeout(updateActiveNav, 350);
-    });
-  });
-}
-
-function applyHashTarget() {
-  if (!location.hash.startsWith("#project-")) {
-    return;
-  }
-
-  const projectId = location.hash.replace("#project-", "");
-  const project = visibleProjectsForActor().find((item) => item.id === projectId);
-  if (project) {
-    state.selectedId = project.id;
-  }
-}
-
-function scrollToHashTarget() {
-  if (!location.hash || location.hash.length <= 1) {
-    return;
-  }
-
-  const id = location.hash.slice(1);
-  const target = location.hash.startsWith("#project-")
-    ? $("#projects")
-    : document.getElementById(id);
-
-  if (!target) {
-    return;
-  }
-
-  const runScroll = () => {
-    scrollPageTo(target, "auto");
-    updateActiveNav();
+function importSampleSignal() {
+  const customer = selectedCustomer();
+  const newSignal = {
+    id: `sig-${Date.now()}`,
+    customerId: customer.id,
+    source: "Manual Import",
+    type: "Demo risk",
+    severity: customer.healthStatus === "Green" ? "Medium" : "High",
+    sentiment: customer.healthStatus === "Green" ? "Neutral" : "Negative",
+    risk: `New manually imported sample signal for ${customer.name}.`,
+    confidence: 73,
+    status: "Needs review",
+    date: "May 22, 2026",
+    evidence: "Mock import created for hackathon demo signal review workflow.",
+    sensitive: false,
+    sensitiveType: "delivery"
   };
-
-  window.requestAnimationFrame(runScroll);
-  window.setTimeout(runScroll, 120);
+  signals.unshift(newSignal);
+  renderDashboard();
+  renderCustomerDetail();
+  renderSignals();
+  $("#signals")?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-function renderAll(multiplier = 1) {
-  renderHeroSummary();
-  renderMetrics();
-  renderTrendChart(multiplier);
-  renderDeliveryStack();
-  renderRiskDonut();
-  renderRecentDeployments();
-  renderActivityFeed();
-  renderNotifications();
-  renderProjectWorkspace();
-  renderManagePanel();
-  renderAlerts();
-  renderAccessControl();
-  renderReports();
-  renderProposal();
+function updateRecommendation(id, status) {
+  const rec = recommendations.find((item) => item.id === id);
+  if (!rec) return;
+  rec.status = status;
+  rec.reviewer = state.currentUser.name;
+  renderRecommendations();
+  renderCustomerDetail();
+  renderExecutiveSummary();
 }
 
 function bindEvents() {
-  $$("[data-auth-tab]").forEach((button) => {
-    button.addEventListener("click", () => setAuthMode(button.dataset.authTab));
-  });
+  $("#demoUserSelect").addEventListener("change", populateLoginFields);
 
-  $("#loginForm").addEventListener("submit", async (event) => {
+  $("#loginForm").addEventListener("submit", (event) => {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-
-    try {
-      const payload = await apiRequest("/api/login", {
-        method: "POST",
-        body: {
-          email: formData.get("email"),
-          password: formData.get("password")
-        }
-      });
-      logInActor(payload.actor, payload);
-    } catch (error) {
-      $("#loginStatus").textContent = error.message;
-      $("#loginPassword").value = "";
-      $("#loginPassword").focus();
+    const email = $("#loginEmail").value.trim().toLowerCase();
+    const password = $("#loginPassword").value;
+    const user = demoUsers.find((item) => item.email === email);
+    if (!user || password !== DEMO_PASSWORD) {
+      $("#loginStatus").textContent = "Invalid demo credentials. Use one of the listed tkxel demo roles.";
+      return;
     }
+    $("#loginStatus").textContent = "";
+    signIn(user);
   });
 
-  $("#registerForm").addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const email = normalizeEmail(formData.get("email"));
-    const password = String(formData.get("password") || "");
-    const confirmPassword = String(formData.get("confirmPassword") || "");
-    const role = String(formData.get("role") || "Client/User");
-    const projectId = String(formData.get("projectId") || projects[0].id);
-    const name = String(formData.get("name") || "").trim();
-    const organization = String(formData.get("organization") || "").trim();
+  $("#logoutButton").addEventListener("click", logOut);
 
-    if (!name || !email || !organization) {
-      $("#registerStatus").textContent = "Name, email, and organization are required.";
-      return;
+  $("#viewAsSelect").addEventListener("change", (event) => {
+    const user = demoUsers.find((item) => item.id === event.target.value) || demoUsers[0];
+    state.currentUser = user;
+    localStorage.setItem(STORAGE_KEY, user.id);
+    if (!visibleCustomers().some((customer) => customer.id === state.selectedCustomerId)) {
+      state.selectedCustomerId = visibleCustomers()[0]?.id || customers[0].id;
     }
-
-    if (password.length < 8) {
-      $("#registerStatus").textContent = "Password must be at least 8 characters.";
-      $("#registerPassword").focus();
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      $("#registerStatus").textContent = "Passwords do not match.";
-      $("#registerConfirmPassword").value = "";
-      $("#registerConfirmPassword").focus();
-      return;
-    }
-
-    try {
-      const payload = await apiRequest("/api/register", {
-        method: "POST",
-        body: { name, email, password, organization, role, projectId }
-      });
-      event.currentTarget.reset();
-      $("#registerStatus").textContent = "";
-      logInActor(payload.actor, payload);
-    } catch (error) {
-      $("#registerStatus").textContent = error.message;
-      $("#registerEmail").focus();
-    }
-  });
-
-  $("#logoutButton").addEventListener("click", async () => {
-    try {
-      await apiRequest("/api/logout", { method: "POST" });
-    } catch {
-      // Local logout still clears the current interface if the backend is unavailable.
-    }
-    logOutActor();
+    renderAll();
   });
 
   $("#navToggle").addEventListener("click", () => {
@@ -2170,149 +1793,166 @@ function bindEvents() {
     $("#navToggle").setAttribute("aria-expanded", String(isOpen));
   });
 
-  bindSectionLinks();
-  window.addEventListener("scroll", updateActiveNav, { passive: true });
-  $("main").addEventListener("scroll", updateActiveNav, { passive: true });
-  window.addEventListener("load", () => {
-    scrollToHashTarget();
-    updateActiveNav();
-  });
-  window.addEventListener("hashchange", () => {
-    applyHashTarget();
-    scrollToHashTarget();
-    updateActiveNav();
-  });
-
-  $("#projectSearch").addEventListener("input", (event) => {
+  $("#globalSearch").addEventListener("input", (event) => {
     state.search = event.target.value;
-    renderProjectWorkspace();
+    $("#portfolioSearch").value = event.target.value;
+    renderPortfolio();
   });
 
-  if ($("#dashboardSearch")) {
-    $("#dashboardSearch").addEventListener("input", (event) => {
-      state.search = event.target.value;
-      $("#projectSearch").value = event.target.value;
-      renderProjectWorkspace();
-    });
-  }
-
-  $("#themeToggle").addEventListener("click", toggleDashboardTheme);
-
-  $("#notificationToggle").addEventListener("click", (event) => {
-    event.stopPropagation();
-    state.notificationsRead = true;
-    setNotificationsOpen(!state.notificationsOpen);
-  });
-
-  document.addEventListener("click", (event) => {
-    const panel = $("#notificationPanel");
-    const toggle = $("#notificationToggle");
-    if (!state.notificationsOpen || !panel || !toggle) {
-      return;
-    }
-    if (!panel.contains(event.target) && !toggle.contains(event.target)) {
-      setNotificationsOpen(false);
-    }
-  });
-
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && state.notificationsOpen) {
-      setNotificationsOpen(false);
-      $("#notificationToggle").focus();
-    }
+  $("#portfolioSearch").addEventListener("input", (event) => {
+    state.search = event.target.value;
+    $("#globalSearch").value = event.target.value;
+    renderPortfolio();
   });
 
   $("#statusFilter").addEventListener("change", (event) => {
-    state.status = event.target.value;
-    renderProjectWorkspace();
+    state.statusFilter = event.target.value;
+    renderPortfolio();
   });
 
-  $("#riskFilter").addEventListener("change", (event) => {
-    state.risk = event.target.value;
-    renderProjectWorkspace();
+  $("#tierFilter").addEventListener("change", (event) => {
+    state.tierFilter = event.target.value;
+    renderPortfolio();
   });
 
   $("#resetFilters").addEventListener("click", () => {
-    resetProjectFilters();
-    renderProjectWorkspace();
+    state.search = "";
+    state.statusFilter = "All";
+    state.tierFilter = "All";
+    $("#globalSearch").value = "";
+    $("#portfolioSearch").value = "";
+    $("#statusFilter").value = "All";
+    $("#tierFilter").value = "All";
+    renderPortfolio();
   });
 
-  $$(".segmented-control button").forEach((button) => {
-    button.addEventListener("click", () => {
-      $$(".segmented-control button").forEach((item) => item.classList.remove("is-active"));
-      button.classList.add("is-active");
-      const period = Number(button.dataset.period);
-      renderAll(period === 30 ? 1 : period === 60 ? 0.97 : 1.03);
-    });
+  $("#signalSourceFilter").addEventListener("change", (event) => {
+    state.signalSource = event.target.value;
+    renderSignals();
   });
 
-  $("#projectForm").addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const actor = selectedActor();
-    if (!canCreateProjects(actor)) {
-      $("#projectFormStatus").textContent = "Create access is not available for this actor.";
+  $("#signalReviewFilter").addEventListener("change", (event) => {
+    state.signalReview = event.target.value;
+    renderSignals();
+  });
+
+  $("#importSignalButton").addEventListener("click", importSampleSignal);
+
+  $("#demoStart").addEventListener("click", startDemo);
+  $("#demoPrev").addEventListener("click", () => moveDemoStep(-1));
+  $("#demoNext").addEventListener("click", () => moveDemoStep(1));
+  $("#demoExit").addEventListener("click", stopDemo);
+
+  $("#exportReport").addEventListener("click", () => {
+    $("#reportStatus").textContent = userCan("exportReports")
+      ? `Executive brief prepared for ${state.currentUser.name}.`
+      : "Report export is restricted for this role.";
+    $("#reports")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  $("#timeRangeControl").addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-range]");
+    if (!button) return;
+    $$("#timeRangeControl button").forEach((item) => item.classList.toggle("is-active", item === button));
+    state.trendRange = Number(button.dataset.range);
+    renderTrendChart();
+  });
+
+  document.addEventListener("click", (event) => {
+    const metricButton = event.target.closest("[data-metric-filter]");
+    if (metricButton) {
+      applyMetricFilter(metricButton.dataset.metricFilter);
       return;
     }
 
-    const formData = new FormData(event.currentTarget);
-    const name = String(formData.get("name") || "").trim();
-    const customer = String(formData.get("customer") || "").trim();
-    if (!name || !customer) {
-      $("#projectFormStatus").textContent = "Project name and client are required.";
+    const selectButton = event.target.closest("[data-select-customer]");
+    if (selectButton) {
+      setCustomer(selectButton.dataset.selectCustomer);
       return;
     }
 
-    try {
-      const payload = await apiRequest("/api/projects", {
-        method: "POST",
-        body: Object.fromEntries(formData.entries())
-      });
-      applyServerState(payload);
-      const createdProject = projects.find((project) => project.name === name && project.customer === customer);
-      state.selectedId = createdProject?.id || projects[projects.length - 1]?.id || state.selectedId;
-      renderAll();
-      event.currentTarget.reset();
-      $("#projectFormStatus").textContent = `${name} was added to the project portfolio.`;
-    } catch (error) {
-      $("#projectFormStatus").textContent = error.message;
+    const row = event.target.closest("[data-row-customer]");
+    if (row && !event.target.closest("button")) {
+      setCustomer(row.dataset.rowCustomer);
+      return;
+    }
+
+    const reviewButton = event.target.closest("[data-signal-review]");
+    if (reviewButton) {
+      const signal = signals.find((item) => item.id === reviewButton.dataset.signalReview);
+      if (signal && userCan("reviewSignals")) {
+        signal.status = "Reviewed";
+        renderDashboard();
+        renderCustomerDetail();
+        renderSignals();
+      }
+      return;
+    }
+
+    const ignoreButton = event.target.closest("[data-signal-ignore]");
+    if (ignoreButton) {
+      const signal = signals.find((item) => item.id === ignoreButton.dataset.signalIgnore);
+      if (signal && userCan("reviewSignals")) {
+        signal.status = "Ignored";
+        renderSignals();
+      }
+      return;
+    }
+
+    const approveButton = event.target.closest("[data-rec-approve]");
+    if (approveButton) {
+      updateRecommendation(approveButton.dataset.recApprove, "Approved");
+      return;
+    }
+
+    const rejectButton = event.target.closest("[data-rec-reject]");
+    if (rejectButton) {
+      updateRecommendation(rejectButton.dataset.recReject, "Rejected");
+      return;
+    }
+
+    const assignButton = event.target.closest("[data-rec-assign]");
+    if (assignButton) {
+      updateRecommendation(assignButton.dataset.recAssign, "Owner assigned");
     }
   });
 
-  $("#exportReport").addEventListener("click", async () => {
-    if (!canExportReports()) {
-      $("#reportNote").textContent = "Export requires Admin or Project Manager access.";
-      return;
-    }
-    try {
-      const payload = await apiRequest("/api/reports/export", { method: "POST" });
-      $("#reportNote").textContent = payload.message || `Report export prepared for ${selectedActor().name}.`;
-    } catch (error) {
-      $("#reportNote").textContent = error.message;
-    }
+  document.addEventListener("input", (event) => {
+    const range = event.target.closest("[data-weight-key]");
+    if (!range || !userCan("changeScoring")) return;
+    scoringWeights[range.dataset.weightKey] = Number(range.value);
+    renderDashboard();
+    renderPortfolio();
+    renderCustomerDetail();
+    renderScoring();
   });
+
+  window.addEventListener("scroll", updateActiveNav, { passive: true });
+  window.addEventListener("hashchange", updateActiveNav);
 }
 
-async function init() {
-  state.dashboardTheme = readDashboardTheme();
-  applyDashboardTheme();
+function init() {
+  normalizeCustomers();
+  renderLoginOptions();
   bindEvents();
-  try {
-    const payload = await apiRequest("/api/session");
-    applyServerState(payload);
-  } catch (error) {
-    $("#loginStatus").textContent = "Start the backend server, then refresh this page.";
-    console.error(error);
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("demo") === "1" || params.has("walkthrough")) {
+    startDemo();
+    return;
   }
-
-  if (isAuthenticated()) {
-    applyHashTarget();
-    showApp();
-    renderAll();
-    scrollToHashTarget();
-    window.setTimeout(scrollToHashTarget, 500);
-    updateActiveNav();
-  } else {
-    showLogin();
+  const demoAs = params.get("as") || params.get("demoRole");
+  const demoUser = demoUsers.find((user) => {
+    const requested = String(demoAs || "").toLowerCase();
+    return user.id === requested || user.email.toLowerCase() === requested || user.role.toLowerCase() === requested;
+  });
+  if (demoUser) {
+    signIn(demoUser);
+    return;
+  }
+  const storedId = localStorage.getItem(STORAGE_KEY);
+  const storedUser = demoUsers.find((user) => user.id === storedId);
+  if (storedUser) {
+    signIn(storedUser);
   }
 }
 

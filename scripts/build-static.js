@@ -61,5 +61,5 @@ fs.writeFileSync(
 
 console.log(`Static build created at ${dist}`);
 if (!apiBase) {
-  console.log("PROJECT_HEALTH_API_BASE is empty. Static UI will deploy, but API login needs a hosted backend URL or Vercel Functions.");
+  console.log("PROJECT_HEALTH_API_BASE is empty. Static demo login works locally without a hosted backend.");
 }

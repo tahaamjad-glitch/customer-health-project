@@ -1,0 +1,23 @@
+{
+  "name": "Codex Aegis",
+  "background": "#02070A",
+  "foreground": "#D6F6F6",
+  "cursorColor": "#A9FFF6",
+  "selectionBackground": "#154A50",
+  "black": "#02070A",
+  "red": "#FF5F73",
+  "green": "#54FFAC",
+  "yellow": "#F5D76E",
+  "blue": "#41ECE2",
+  "purple": "#8A7CFF",
+  "cyan": "#5CEFFF",
+  "white": "#D6F6F6",
+  "brightBlack": "#31545B",
+  "brightRed": "#FF7C8D",
+  "brightGreen": "#7DFFC0",
+  "brightYellow": "#FFE68A",
+  "brightBlue": "#79FFF4",
+  "brightPurple": "#A89CFF",
+  "brightCyan": "#A9FFF6",
+  "brightWhite": "#FFFFFF"
+}

@@ -1,0 +1,18 @@
+flowchart LR
+    A["People + Owners<br/>Admin, PM, Delivery Lead<br/>Account, Finance, Executives"]
+    B["Customer + Project Context<br/>Client profile, stakeholders<br/>Project scope, milestones<br/>Budget, risks, commitments"]
+    C["Customer Signals<br/>Slack / Teams / Email<br/>Meetings, support tickets<br/>Surveys, invoices, Jira comments"]
+    D["AI Concern Radar<br/>Sentiment trend<br/>Concern themes<br/>Expectation gap<br/>Escalation probability"]
+    E["Escalation Protection<br/>Customer confidence score<br/>Commitment tracker<br/>Response SLA<br/>Pre-escalation playbook"]
+    F["Actions + Follow-up<br/>Assign owner<br/>Send customer update<br/>Escalate internally<br/>Track resolution"]
+    G["Dashboards + Decisions<br/>Client health<br/>Top concerns<br/>Risk reasons<br/>Leadership decisions"]
+
+    A --> B --> C --> D --> E --> F --> G
+
+    style A fill:#eef2ff,stroke:#6366f1
+    style B fill:#eff6ff,stroke:#2563eb
+    style C fill:#ecfeff,stroke:#0891b2
+    style D fill:#f5f3ff,stroke:#7c3aed
+    style E fill:#fff7ed,stroke:#f59e0b
+    style F fill:#ecfdf5,stroke:#059669
+    style G fill:#f8fafc,stroke:#111827

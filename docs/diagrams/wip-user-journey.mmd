@@ -1,0 +1,16 @@
+flowchart LR
+    S1["1. Set Up Workspace<br/>Owner: Admin<br/>Users, access, settings"]
+    S2["2. Add Client + Project<br/>Owner: Account + PM<br/>Stakeholders, scope, milestones"]
+    S3["3. Capture Customer Signals<br/>Owner: Account + Delivery<br/>Messages, meetings, tickets, surveys"]
+    S4["4. AI Understands Concerns<br/>Owner: Platform<br/>Sentiment, themes, expectations, risk"]
+    S5["5. Prevent Escalation<br/>Owner: PM / Delivery / Account<br/>Actions, SLAs, customer updates"]
+    S6["6. Review Decisions<br/>Owner: Executives<br/>Client health, top risks, next steps"]
+
+    S1 --> S2 --> S3 --> S4 --> S5 --> S6
+
+    style S1 fill:#1f2937,color:#fff
+    style S2 fill:#2563eb,color:#fff
+    style S3 fill:#0f766e,color:#fff
+    style S4 fill:#7c3aed,color:#fff
+    style S5 fill:#f59e0b,color:#111
+    style S6 fill:#111827,color:#fff

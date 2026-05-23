@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="670" viewBox="0 0 1700 670" role="img" aria-labelledby="title desc">
+  <title id="title">Workspace Intelligence Platform Customer Protection Journey</title>
+  <desc id="desc">A clear six-step user journey showing how the platform captures customer signals, understands concerns, prevents escalation, and supports executive decisions.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L12,7 L2,12 Z" fill="#334155"/>
+    </marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#0f172a" flood-opacity="0.10"/>
+    </filter>
+    <style>
+      .bg { fill: #f8fafc; }
+      .title { font: 700 34px Arial, sans-serif; fill: #0f172a; }
+      .subtitle { font: 400 17px Arial, sans-serif; fill: #475569; }
+      .card { fill: #ffffff; stroke: #dbe3ef; stroke-width: 1.5; rx: 16; filter: url(#shadow); }
+      .stepTitle { font: 700 17px Arial, sans-serif; fill: #0f172a; }
+      .owner { font: 700 14px Arial, sans-serif; fill: #334155; }
+      .body { font: 400 14.5px Arial, sans-serif; fill: #475569; }
+      .number { font: 700 16px Arial, sans-serif; fill: #ffffff; }
+      .line { stroke: #334155; stroke-width: 2.4; fill: none; marker-end: url(#arrow); }
+      .setup { fill: #1f2937; }
+      .client { fill: #2563eb; }
+      .signals { fill: #0f766e; }
+      .ai { fill: #7c3aed; }
+      .action { fill: #f59e0b; }
+      .decision { fill: #111827; }
+      .noteBox { fill: #ffffff; stroke: #dbe3ef; stroke-width: 1.4; rx: 14; }
+      .noteTitle { font: 700 18px Arial, sans-serif; fill: #0f172a; }
+      .noteText { font: 400 15px Arial, sans-serif; fill: #475569; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1700" height="670"/>
+  <text class="title" x="64" y="68">Customer Protection Journey</text>
+  <text class="subtitle" x="64" y="101">Six steps for understanding customer concerns and preventing project escalation.</text>
+
+  <rect class="card" x="55" y="160" width="245" height="215"/>
+  <circle class="setup" cx="92" cy="200" r="22"/>
+  <text class="number" x="92" y="206" text-anchor="middle">1</text>
+  <text class="stepTitle" x="125" y="207">Set Up Workspace</text>
+  <text class="owner" x="82" y="252">Owner: Admin</text>
+  <text class="body" x="82" y="286">Add users, access rules,</text>
+  <text class="body" x="82" y="309">SSO/MFA, audit logs,</text>
+  <text class="body" x="82" y="332">and alert settings.</text>
+
+  <rect class="card" x="335" y="160" width="245" height="215"/>
+  <circle class="client" cx="372" cy="200" r="22"/>
+  <text class="number" x="372" y="206" text-anchor="middle">2</text>
+  <text class="stepTitle" x="405" y="207">Add Client + Project</text>
+  <text class="owner" x="362" y="252">Owner: Account + PM</text>
+  <text class="body" x="362" y="286">Define stakeholders, scope,</text>
+  <text class="body" x="362" y="309">milestones, budget, risks,</text>
+  <text class="body" x="362" y="332">and customer promises.</text>
+
+  <rect class="card" x="615" y="160" width="245" height="215"/>
+  <circle class="signals" cx="652" cy="200" r="22"/>
+  <text class="number" x="652" y="206" text-anchor="middle">3</text>
+  <text class="stepTitle" x="685" y="207">Capture Signals</text>
+  <text class="owner" x="642" y="252">Owner: Account + Delivery</text>
+  <text class="body" x="642" y="286">Collect messages, meetings,</text>
+  <text class="body" x="642" y="309">tickets, surveys, Jira notes,</text>
+  <text class="body" x="642" y="332">and invoice concerns.</text>
+
+  <rect class="card" x="895" y="160" width="245" height="215"/>
+  <circle class="ai" cx="932" cy="200" r="22"/>
+  <text class="number" x="932" y="206" text-anchor="middle">4</text>
+  <text class="stepTitle" x="965" y="207">Understand Concerns</text>
+  <text class="owner" x="922" y="252">Owner: Platform AI</text>
+  <text class="body" x="922" y="286">Find sentiment changes,</text>
+  <text class="body" x="922" y="309">repeated concerns, expectation</text>
+  <text class="body" x="922" y="332">gaps, and escalation risk.</text>
+
+  <rect class="card" x="1175" y="160" width="245" height="215"/>
+  <circle class="action" cx="1212" cy="200" r="22"/>
+  <text class="number" x="1212" y="206" text-anchor="middle">5</text>
+  <text class="stepTitle" x="1245" y="207">Prevent Escalation</text>
+  <text class="owner" x="1202" y="252">Owner: PM / Delivery / Account</text>
+  <text class="body" x="1202" y="286">Assign action items, track</text>
+  <text class="body" x="1202" y="309">response SLA, send updates,</text>
+  <text class="body" x="1202" y="332">and run playbooks.</text>
+
+  <rect class="card" x="1455" y="160" width="245" height="215"/>
+  <circle class="decision" cx="1492" cy="200" r="22"/>
+  <text class="number" x="1492" y="206" text-anchor="middle">6</text>
+  <text class="stepTitle" x="1525" y="207">Review Decisions</text>
+  <text class="owner" x="1482" y="252">Owner: Executives</text>
+  <text class="body" x="1482" y="286">Review client health, top</text>
+  <text class="body" x="1482" y="309">concerns, risk reasons,</text>
+  <text class="body" x="1482" y="332">and next actions.</text>
+
+  <path class="line" d="M300 267 L335 267"/>
+  <path class="line" d="M580 267 L615 267"/>
+  <path class="line" d="M860 267 L895 267"/>
+  <path class="line" d="M1140 267 L1175 267"/>
+  <path class="line" d="M1420 267 L1455 267"/>
+
+  <rect class="noteBox" x="55" y="440" width="1590" height="125"/>
+  <text class="noteTitle" x="85" y="480">Protection loop</text>
+  <text class="noteText" x="85" y="516">The platform continuously watches customer language, stakeholder mood, missed commitments, response delays, and financial concerns.</text>
+  <text class="noteText" x="85" y="546">When concern rises, it creates a visible owner, recommended next action, customer communication plan, and executive visibility.</text>
+</svg>

@@ -14,10 +14,10 @@
       "responsibilities": "Owns system configuration, user access, portfolio governance, and executive reporting."
     },
     {
-      "id": "pm-maya",
-      "email": "maya@projecthealth.test",
+      "id": "pm-lareeb",
+      "email": "lareeb@projecthealth.test",
       "password": "Manager@123",
-      "name": "Maya Chen",
+      "name": "Dr. Lareeb Saleem",
       "role": "Project Manager",
       "organization": "Delivery",
       "projectIds": [
@@ -177,7 +177,7 @@
         "milestone": "Security operations pilot",
         "delivery": "Jul 31, 2026"
       },
-      "projectManager": "Maya Chen",
+      "projectManager": "Dr. Lareeb Saleem",
       "teamLead": "Ari Khan",
       "developers": [
         "Alex Lee",
@@ -302,7 +302,7 @@
         "milestone": "Integration hardening",
         "delivery": "Sep 18, 2026"
       },
-      "projectManager": "Maya Chen",
+      "projectManager": "Dr. Lareeb Saleem",
       "teamLead": "Noor Patel",
       "developers": [
         "Priya Shah",
@@ -425,6 +425,18 @@
     "a9ed589e57eeef6a16e4ff7f1f76414312d71cd61a6fc3d5": {
       "actorId": "admin-olivia",
       "expiresAt": 1779200659602
+    },
+    "5d7f7c7dc6b8ba6b216779d19912c2d08461180609a486ce": {
+      "actorId": "pm-lareeb",
+      "expiresAt": 1779234007984
+    },
+    "762fe074b097e1c6fca96c80bc8ccf6ccd765460e41bd390": {
+      "actorId": "admin-olivia",
+      "expiresAt": 1779315416178
+    },
+    "8ccaa98d6f7fce61bc72c4028ffae009ba88fabf0a380156": {
+      "actorId": "admin-olivia",
+      "expiresAt": 1779403691942
     }
   }
 }

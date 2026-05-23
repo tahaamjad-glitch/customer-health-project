@@ -1,0 +1,166 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1780" height="1010" viewBox="0 0 1780 1010" role="img" aria-labelledby="title desc">
+  <title id="title">Workspace Intelligence Platform Customer Escalation Protection Flow</title>
+  <desc id="desc">A clear diagram showing how the platform captures customer signals, understands concerns, predicts escalation risk, and creates preventive actions.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L12,7 L2,12 Z" fill="#334155"/>
+    </marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#0f172a" flood-opacity="0.10"/>
+    </filter>
+    <style>
+      .bg { fill: #f8fafc; }
+      .title { font: 700 35px Arial, sans-serif; fill: #0f172a; }
+      .subtitle { font: 400 18px Arial, sans-serif; fill: #475569; }
+      .label { font: 700 14px Arial, sans-serif; fill: #64748b; letter-spacing: .5px; text-transform: uppercase; }
+      .card { stroke-width: 1.6; rx: 16; filter: url(#shadow); }
+      .cardTitle { font: 700 18px Arial, sans-serif; fill: #0f172a; }
+      .cardBody { font: 400 14px Arial, sans-serif; fill: #334155; }
+      .number { font: 700 15px Arial, sans-serif; fill: #ffffff; }
+      .line { stroke: #334155; stroke-width: 2.3; fill: none; marker-end: url(#arrow); }
+      .noteBox { fill: #ffffff; stroke: #dbe3ef; stroke-width: 1.4; rx: 14; }
+      .noteTitle { font: 700 18px Arial, sans-serif; fill: #0f172a; }
+      .noteText { font: 400 15px Arial, sans-serif; fill: #475569; }
+      .featureTitle { font: 700 15px Arial, sans-serif; fill: #1f2937; }
+      .muted { font: 400 13px Arial, sans-serif; fill: #64748b; }
+      .people { fill: #eef2ff; stroke: #6366f1; }
+      .context { fill: #eff6ff; stroke: #2563eb; }
+      .signals { fill: #ecfeff; stroke: #0891b2; }
+      .ai { fill: #f5f3ff; stroke: #7c3aed; }
+      .protect { fill: #fff7ed; stroke: #f59e0b; }
+      .actions { fill: #ecfdf5; stroke: #059669; }
+      .reports { fill: #f8fafc; stroke: #111827; }
+      .circle1 { fill: #4f46e5; }
+      .circle2 { fill: #2563eb; }
+      .circle3 { fill: #0891b2; }
+      .circle4 { fill: #7c3aed; }
+      .circle5 { fill: #f59e0b; }
+      .circle6 { fill: #059669; }
+      .circle7 { fill: #111827; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1780" height="1010"/>
+  <text class="title" x="64" y="68">Customer Escalation Protection Flow</text>
+  <text class="subtitle" x="64" y="102">How WIP understands customer concerns early and turns them into preventive action before escalation.</text>
+  <text class="label" x="64" y="154">Read left to right</text>
+
+  <rect class="card people" x="45" y="180" width="220" height="285"/>
+  <circle class="circle1" cx="81" cy="220" r="20"/>
+  <text class="number" x="81" y="225" text-anchor="middle">1</text>
+  <text class="cardTitle" x="110" y="226">People + Owners</text>
+  <text class="cardBody" x="72" y="270">Admin</text>
+  <text class="cardBody" x="72" y="298">PM / Delivery Lead</text>
+  <text class="cardBody" x="72" y="326">Account / CS</text>
+  <text class="cardBody" x="72" y="354">Finance</text>
+  <text class="cardBody" x="72" y="382">Executives</text>
+  <text class="muted" x="72" y="426">Every risk has a clear</text>
+  <text class="muted" x="72" y="446">business owner.</text>
+
+  <rect class="card context" x="300" y="180" width="220" height="285"/>
+  <circle class="circle2" cx="336" cy="220" r="20"/>
+  <text class="number" x="336" y="225" text-anchor="middle">2</text>
+  <text class="cardTitle" x="365" y="226">Customer Context</text>
+  <text class="cardBody" x="327" y="270">Client profile</text>
+  <text class="cardBody" x="327" y="298">Stakeholders</text>
+  <text class="cardBody" x="327" y="326">Project scope</text>
+  <text class="cardBody" x="327" y="354">Milestones</text>
+  <text class="cardBody" x="327" y="382">Budget and promises</text>
+  <text class="muted" x="327" y="426">The platform knows</text>
+  <text class="muted" x="327" y="446">what the customer expects.</text>
+
+  <rect class="card signals" x="555" y="180" width="220" height="285"/>
+  <circle class="circle3" cx="591" cy="220" r="20"/>
+  <text class="number" x="591" y="225" text-anchor="middle">3</text>
+  <text class="cardTitle" x="620" y="226">Customer Signals</text>
+  <text class="cardBody" x="582" y="270">Slack / Teams / Email</text>
+  <text class="cardBody" x="582" y="298">Meeting transcripts</text>
+  <text class="cardBody" x="582" y="326">Support tickets</text>
+  <text class="cardBody" x="582" y="354">Surveys / NPS</text>
+  <text class="cardBody" x="582" y="382">Invoice concerns</text>
+  <text class="muted" x="582" y="426">The platform listens to</text>
+  <text class="muted" x="582" y="446">what customers say and do.</text>
+
+  <rect class="card ai" x="810" y="180" width="220" height="285"/>
+  <circle class="circle4" cx="846" cy="220" r="20"/>
+  <text class="number" x="846" y="225" text-anchor="middle">4</text>
+  <text class="cardTitle" x="875" y="226">AI Concern Radar</text>
+  <text class="cardBody" x="837" y="270">Sentiment trend</text>
+  <text class="cardBody" x="837" y="298">Concern themes</text>
+  <text class="cardBody" x="837" y="326">Expectation gap</text>
+  <text class="cardBody" x="837" y="354">Stakeholder mood</text>
+  <text class="cardBody" x="837" y="382">Escalation probability</text>
+  <text class="muted" x="837" y="426">AI explains what the</text>
+  <text class="muted" x="837" y="446">customer may be worried about.</text>
+
+  <rect class="card protect" x="1065" y="180" width="220" height="285"/>
+  <circle class="circle5" cx="1101" cy="220" r="20"/>
+  <text class="number" x="1101" y="225" text-anchor="middle">5</text>
+  <text class="cardTitle" x="1130" y="226">Escalation Protection</text>
+  <text class="cardBody" x="1092" y="270">Confidence score</text>
+  <text class="cardBody" x="1092" y="298">Commitment tracker</text>
+  <text class="cardBody" x="1092" y="326">Response SLA</text>
+  <text class="cardBody" x="1092" y="354">Concern timeline</text>
+  <text class="cardBody" x="1092" y="382">Playbook suggestions</text>
+  <text class="muted" x="1092" y="426">Risks become prevention</text>
+  <text class="muted" x="1092" y="446">plans, not surprises.</text>
+
+  <rect class="card actions" x="1320" y="180" width="220" height="285"/>
+  <circle class="circle6" cx="1356" cy="220" r="20"/>
+  <text class="number" x="1356" y="225" text-anchor="middle">6</text>
+  <text class="cardTitle" x="1385" y="226">Actions + Follow-up</text>
+  <text class="cardBody" x="1347" y="270">Assign owner</text>
+  <text class="cardBody" x="1347" y="298">Create action item</text>
+  <text class="cardBody" x="1347" y="326">Send customer update</text>
+  <text class="cardBody" x="1347" y="354">Escalate internally</text>
+  <text class="cardBody" x="1347" y="382">Track resolution</text>
+  <text class="muted" x="1347" y="426">Every concern gets a</text>
+  <text class="muted" x="1347" y="446">visible response.</text>
+
+  <rect class="card reports" x="1575" y="180" width="175" height="285"/>
+  <circle class="circle7" cx="1611" cy="220" r="20"/>
+  <text class="number" x="1611" y="225" text-anchor="middle">7</text>
+  <text class="cardTitle" x="1640" y="226">Decisions</text>
+  <text class="cardBody" x="1602" y="270">Client health</text>
+  <text class="cardBody" x="1602" y="298">Top concerns</text>
+  <text class="cardBody" x="1602" y="326">Risk reasons</text>
+  <text class="cardBody" x="1602" y="354">Next actions</text>
+  <text class="cardBody" x="1602" y="382">Exec review</text>
+  <text class="muted" x="1602" y="426">Leaders see where</text>
+  <text class="muted" x="1602" y="446">to intervene.</text>
+
+  <path class="line" d="M265 322 L300 322"/>
+  <path class="line" d="M520 322 L555 322"/>
+  <path class="line" d="M775 322 L810 322"/>
+  <path class="line" d="M1030 322 L1065 322"/>
+  <path class="line" d="M1285 322 L1320 322"/>
+  <path class="line" d="M1540 322 L1575 322"/>
+
+  <rect class="noteBox" x="45" y="525" width="820" height="295"/>
+  <text class="noteTitle" x="75" y="565">New customer-understanding features</text>
+  <text class="featureTitle" x="75" y="610">Voice of Customer timeline</text>
+  <text class="noteText" x="315" y="610">Shows how customer sentiment and concerns changed over time.</text>
+  <text class="featureTitle" x="75" y="646">Stakeholder mood map</text>
+  <text class="noteText" x="315" y="646">Tracks decision makers, champions, blockers, and escalation contacts.</text>
+  <text class="featureTitle" x="75" y="682">Expectation gap detector</text>
+  <text class="noteText" x="315" y="682">Compares promised milestones with actual progress and customer language.</text>
+  <text class="featureTitle" x="75" y="718">Repeated concern detector</text>
+  <text class="noteText" x="315" y="718">Highlights issues the customer keeps raising across meetings and messages.</text>
+  <text class="featureTitle" x="75" y="754">Customer confidence score</text>
+  <text class="noteText" x="315" y="754">Combines sentiment, delays, responsiveness, invoices, and open risks.</text>
+  <text class="featureTitle" x="75" y="790">Next best action</text>
+  <text class="noteText" x="315" y="790">Suggests the right follow-up, owner, urgency, and communication path.</text>
+
+  <rect class="noteBox" x="915" y="525" width="820" height="295"/>
+  <text class="noteTitle" x="945" y="565">Example: preventing escalation</text>
+  <text class="noteText" x="945" y="610">1. Customer says, "We are concerned about the delay" in Teams.</text>
+  <text class="noteText" x="945" y="646">2. Jira shows low sprint progress and a missed milestone.</text>
+  <text class="noteText" x="945" y="682">3. AI detects negative sentiment, delivery risk, and an expectation gap.</text>
+  <text class="noteText" x="945" y="718">4. The system creates a high-priority signal and action item for the PM.</text>
+  <text class="noteText" x="945" y="754">5. Account sends a customer update, Delivery fixes blockers, Executives monitor status.</text>
+  <text class="noteText" x="945" y="790">6. The concern is resolved before the customer formally escalates.</text>
+
+  <rect x="45" y="865" width="1690" height="56" rx="14" fill="#0f172a"/>
+  <text x="75" y="900" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#ffffff">In one sentence:</text>
+  <text x="218" y="900" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">WIP protects projects by understanding customer concerns early, explaining why they matter, and pushing owners to act before escalation.</text>
+</svg>

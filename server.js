@@ -78,10 +78,10 @@ const seedData = {
       responsibilities: "Owns system configuration, user access, portfolio governance, and executive reporting."
     },
     {
-      id: "pm-maya",
-      email: "maya@projecthealth.test",
+      id: "pm-lareeb",
+      email: "lareeb@projecthealth.test",
       password: "Manager@123",
-      name: "Maya Chen",
+      name: "Dr. Lareeb Saleem",
       role: "Project Manager",
       organization: "Delivery",
       projectIds: ["signal", "rei-blackbook"],
@@ -214,7 +214,7 @@ const seedData = {
       environment: "Production",
       portfolioShare: 45,
       timeline: { start: "Feb 03, 2026", milestone: "Security operations pilot", delivery: "Jul 31, 2026" },
-      projectManager: "Maya Chen",
+      projectManager: "Dr. Lareeb Saleem",
       teamLead: "Ari Khan",
       developers: ["Alex Lee", "Nadia Park"],
       clientUser: "Jenna Mills",
@@ -261,7 +261,7 @@ const seedData = {
       environment: "UAT",
       portfolioShare: 22,
       timeline: { start: "Mar 12, 2026", milestone: "Integration hardening", delivery: "Sep 18, 2026" },
-      projectManager: "Maya Chen",
+      projectManager: "Dr. Lareeb Saleem",
       teamLead: "Noor Patel",
       developers: ["Priya Shah", "Owen Brooks"],
       clientUser: "Marcus Reed",
@@ -808,6 +808,6 @@ http.createServer(async (req, res) => {
     sendError(res, 500, error.message || "Server error.", req);
   }
 }).listen(PORT, HOST, () => {
-  console.log(`Vertex AI backend running at ${PUBLIC_ORIGIN}`);
+  console.log(`Customer Health Projection Agent server running at ${PUBLIC_ORIGIN}`);
   console.log(`Listening on ${HOST}:${PORT}`);
 });

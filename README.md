@@ -1,4 +1,18 @@
-# Vertex AI
+# Customer Health Projection Agent
+
+Professional MVP website for the Customer Trust Early Warning System. The app includes demo login roles, role-aware navigation, executive dashboard, customer portfolio, customer detail workspace, signal inbox, recommendation review gate, scoring configuration, agent workflow, RBAC, reports, and discovery artifacts.
+
+## Discovery Phase Artifacts
+
+The Customer Health discovery and solution design package is documented in [docs/discovery/customer-health-discovery-artifacts.md](</C:/Users/taha.amjad/Documents/New project/docs/discovery/customer-health-discovery-artifacts.md>). It includes the Business Canvas, Process Flow, Functional Architecture Diagram, Integration Diagram, Swimlane Diagram, Application Design, PRD, and Agent Graph.
+
+PDF version: [docs/discovery/customer-health-discovery-artifacts.pdf](</C:/Users/taha.amjad/Documents/New project/docs/discovery/customer-health-discovery-artifacts.pdf>).
+
+Master diagram: [docs/discovery/customer-health-master-diagram.md](</C:/Users/taha.amjad/Documents/New project/docs/discovery/customer-health-master-diagram.md>) and [docs/discovery/customer-health-master-diagram.svg](</C:/Users/taha.amjad/Documents/New project/docs/discovery/customer-health-master-diagram.svg>).
+
+JPEG diagrams: [docs/discovery/jpeg/README.md](</C:/Users/taha.amjad/Documents/New project/docs/discovery/jpeg/README.md>).
+
+PDF slide deck: [docs/discovery/slides/customer-health-discovery-slides.pdf](</C:/Users/taha.amjad/Documents/New project/docs/discovery/slides/customer-health-discovery-slides.pdf>).
 
 Local app URL:
 
@@ -9,7 +23,7 @@ npm start
 Open:
 
 ```text
-http://localhost:4174/index.html
+http://127.0.0.1:5173/
 ```
 
 ## Domain Setup
