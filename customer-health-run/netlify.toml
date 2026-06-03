@@ -1,0 +1,32 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[[redirects]]
+  from = "https://projecthealth.com/*"
+  to = "https://www.projecthealth.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "http://projecthealth.com/*"
+  to = "https://www.projecthealth.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "http://www.projecthealth.com/*"
+  to = "https://www.projecthealth.com/:splat"
+  status = 301
+  force = true
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"

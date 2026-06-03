@@ -175,7 +175,7 @@ export const SOURCE_WEIGHT_SUMMARY = [
 ]
 
 export const DASHBOARD_NAV = [
-  { label: 'Dashboard', path: '/' },
+  { label: 'Dashboard', path: '/dashboard' },
   { label: 'Customers', path: '/customers' },
   { label: 'Projects', path: '/projects' },
   { label: 'Signals', path: '/signals' },

@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1400" viewBox="0 0 1920 1400" fill="none">
+  <defs>
+    <radialGradient id="cyanGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(310 210) rotate(38) scale(570 360)">
+      <stop stop-color="#06B6D4" stop-opacity="0.45" />
+      <stop offset="0.42" stop-color="#06B6D4" stop-opacity="0.18" />
+      <stop offset="1" stop-color="#06B6D4" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="indigoGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1510 140) rotate(144) scale(650 380)">
+      <stop stop-color="#4F46E5" stop-opacity="0.5" />
+      <stop offset="0.48" stop-color="#4F46E5" stop-opacity="0.18" />
+      <stop offset="1" stop-color="#4F46E5" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="depth" x1="960" y1="0" x2="960" y2="1400" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F172A" />
+      <stop offset="0.48" stop-color="#111827" />
+      <stop offset="1" stop-color="#08111F" />
+    </linearGradient>
+    <linearGradient id="flow" x1="196" y1="383" x2="1647" y2="733" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#06B6D4" stop-opacity="0" />
+      <stop offset="0.2" stop-color="#06B6D4" stop-opacity="0.52" />
+      <stop offset="0.54" stop-color="#4F46E5" stop-opacity="0.46" />
+      <stop offset="1" stop-color="#4F46E5" stop-opacity="0" />
+    </linearGradient>
+    <pattern id="grid" width="64" height="64" patternUnits="userSpaceOnUse">
+      <path d="M64 0H0V64" stroke="#94A3B8" stroke-opacity="0.13" stroke-width="1" />
+    </pattern>
+    <pattern id="microGrid" width="16" height="16" patternUnits="userSpaceOnUse">
+      <path d="M16 0H0V16" stroke="#06B6D4" stroke-opacity="0.035" stroke-width="1" />
+    </pattern>
+    <filter id="softBlur" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="28" />
+    </filter>
+  </defs>
+
+  <rect width="1920" height="1400" fill="url(#depth)" />
+  <rect width="1920" height="1400" fill="url(#cyanGlow)" />
+  <rect width="1920" height="1400" fill="url(#indigoGlow)" />
+  <rect width="1920" height="1400" fill="url(#grid)" />
+  <rect width="1920" height="1400" fill="url(#microGrid)" />
+
+  <g opacity="0.42" filter="url(#softBlur)">
+    <ellipse cx="1210" cy="650" rx="260" ry="92" fill="#06B6D4" fill-opacity="0.12" />
+    <ellipse cx="720" cy="900" rx="320" ry="110" fill="#4F46E5" fill-opacity="0.13" />
+  </g>
+
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <path d="M190 418C390 318 518 520 704 430C898 336 967 348 1120 456C1271 562 1428 500 1648 382" stroke="url(#flow)" stroke-width="2.5" />
+    <path d="M250 710C438 625 590 782 780 700C972 616 1104 615 1284 728C1425 816 1552 760 1740 650" stroke="url(#flow)" stroke-opacity="0.54" stroke-width="2" />
+    <path d="M118 980C350 836 548 1050 768 936C975 830 1136 868 1322 1015C1460 1124 1606 1084 1810 944" stroke="url(#flow)" stroke-opacity="0.42" stroke-width="2" />
+  </g>
+
+  <g opacity="0.46">
+    <rect x="118" y="238" width="142" height="84" rx="14" stroke="#06B6D4" stroke-opacity="0.28" />
+    <rect x="1424" y="224" width="198" height="104" rx="16" stroke="#4F46E5" stroke-opacity="0.32" />
+    <rect x="1330" y="860" width="232" height="118" rx="18" stroke="#06B6D4" stroke-opacity="0.2" />
+    <rect x="286" y="1034" width="206" height="112" rx="18" stroke="#4F46E5" stroke-opacity="0.22" />
+  </g>
+
+  <g fill="#E0F2FE" opacity="0.52">
+    <circle cx="358" cy="358" r="3" />
+    <circle cx="705" cy="431" r="3" />
+    <circle cx="1120" cy="456" r="3" />
+    <circle cx="1428" cy="500" r="3" />
+    <circle cx="438" cy="625" r="2.5" />
+    <circle cx="780" cy="700" r="2.5" />
+    <circle cx="1284" cy="728" r="2.5" />
+    <circle cx="548" cy="1050" r="2.5" />
+    <circle cx="1322" cy="1015" r="2.5" />
+  </g>
+</svg>

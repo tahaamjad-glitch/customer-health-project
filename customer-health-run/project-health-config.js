@@ -1,0 +1,1 @@
+window.PROJECT_HEALTH_API_BASE = window.PROJECT_HEALTH_API_BASE || "";

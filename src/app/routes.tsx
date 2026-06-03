@@ -1,51 +1,58 @@
 import { createBrowserRouter } from 'react-router-dom'
 
-import { AppLayout } from '@/app/layouts/AppLayout'
-import ActionItemsPage from '@/app/pages/ActionItemsPage'
-import AlertsPage from '@/app/pages/AlertsPage'
-import CustomerDetailPage from '@/app/pages/CustomerDetailPage'
-import CustomersPage from '@/app/pages/CustomersPage'
-import DashboardPage from '@/app/pages/DashboardPage'
-import EscalationsPage from '@/app/pages/EscalationsPage'
-import ForgotPasswordPage from '@/app/pages/ForgotPasswordPage'
-import LoginPage from '@/app/pages/LoginPage'
-import ProjectDetailPage from '@/app/pages/ProjectDetailPage'
-import ProjectsPage from '@/app/pages/ProjectsPage'
-import RecommendationsPage from '@/app/pages/RecommendationsPage'
-import ReportsPage from '@/app/pages/ReportsPage'
-import SettingsPage from '@/app/pages/SettingsPage'
-import SignalsPage from '@/app/pages/SignalsPage'
-import UnauthorizedPage from '@/app/pages/UnauthorizedPage'
+import {
+  AccountPage,
+  AlertDetailPage,
+  AlertsPage,
+  AuditPage,
+  CustomerDetailPage,
+  CustomerHealthApp,
+  CustomersPage,
+  DashboardPage,
+  ForgotPasswordPage,
+  LoginPage,
+  NotFoundPage,
+  OnboardingPage,
+  PmoPage,
+  ProjectsImportPage,
+  RedirectToDashboard,
+  RegisterPage,
+  RequireAuth,
+  ResetPasswordPage,
+  SettingsPage,
+  SignalsPage,
+} from '@/app/prototype/CustomerHealthPrototype'
+
+const protectedRoute = (element: JSX.Element): JSX.Element => <RequireAuth>{element}</RequireAuth>
 
 export const router = createBrowserRouter([
   {
-    path: '/login',
-    element: <LoginPage />,
-  },
-  {
-    path: '/forgot-password',
-    element: <ForgotPasswordPage />,
-  },
-  {
-    path: '/unauthorized',
-    element: <UnauthorizedPage />,
-  },
-  {
+    element: <CustomerHealthApp />,
     path: '/',
-    element: <AppLayout />,
     children: [
-      { index: true, element: <DashboardPage /> },
-      { path: 'customers', element: <CustomersPage /> },
-      { path: 'customers/:id', element: <CustomerDetailPage /> },
-      { path: 'projects', element: <ProjectsPage /> },
-      { path: 'projects/:id', element: <ProjectDetailPage /> },
-      { path: 'signals', element: <SignalsPage /> },
-      { path: 'alerts', element: <AlertsPage /> },
-      { path: 'recommendations', element: <RecommendationsPage /> },
-      { path: 'actions', element: <ActionItemsPage /> },
-      { path: 'escalations', element: <EscalationsPage /> },
-      { path: 'reports', element: <ReportsPage /> },
-      { path: 'settings', element: <SettingsPage /> },
+      { index: true, element: protectedRoute(<RedirectToDashboard />) },
+      { path: 'dashboard', element: protectedRoute(<DashboardPage />) },
+      { path: 'alerts', element: protectedRoute(<AlertsPage />) },
+      { path: 'alerts/:alertId', element: protectedRoute(<AlertDetailPage />) },
+      { path: 'signals', element: protectedRoute(<SignalsPage />) },
+      { path: 'customers', element: protectedRoute(<CustomersPage />) },
+      { path: 'customers/:customerId', element: protectedRoute(<CustomerDetailPage />) },
+      { path: 'pmo', element: protectedRoute(<PmoPage />) },
+      { path: 'settings', element: protectedRoute(<SettingsPage />) },
+      { path: 'account', element: protectedRoute(<AccountPage />) },
+      { path: 'onboarding', element: protectedRoute(<OnboardingPage />) },
+      { path: 'audit', element: protectedRoute(<AuditPage />) },
+      { path: 'projects', element: protectedRoute(<ProjectsImportPage />) },
+      { path: 'recommendations', element: protectedRoute(<PmoPage />) },
+      { path: 'actions', element: protectedRoute(<AlertsPage />) },
+      { path: 'escalations', element: protectedRoute(<PmoPage />) },
+      { path: 'reports', element: protectedRoute(<PmoPage />) },
+      { path: 'login', element: <LoginPage /> },
+      { path: 'register', element: <RegisterPage /> },
+      { path: 'forgot-password', element: <ForgotPasswordPage /> },
+      { path: 'reset-password', element: <ResetPasswordPage /> },
+      { path: 'unauthorized', element: protectedRoute(<NotFoundPage />) },
+      { path: '*', element: <NotFoundPage /> },
     ],
   },
 ])
