@@ -1,0 +1,33 @@
+---
+description: Customer Health app stack, commands, and project conventions
+alwaysApply: true
+---
+
+# Customer Health Project
+
+This repository is the Tkxel Customer Health command center.
+
+## Stack
+
+- Frontend: Vite, React 18, TypeScript, Tailwind CSS, React Router, TanStack Query, Recharts.
+- Backend: dependency-free Python HTTP API under `backend/`, SQLite database, standard-library tests.
+- Local API base: `http://127.0.0.1:8181`.
+- Local frontend: `http://127.0.0.1:5173/login`.
+
+## Run Commands
+
+- Full stack: `npm run dev:full`
+- Frontend only: `npm run dev:frontend`
+- Backend only: `npm run dev:backend`
+- Frontend typecheck: `npm run check`
+- Backend tests: `python -m unittest discover -s backend\tests`
+
+If Windows resolves `python` to the Microsoft Store stub, use the bundled Codex runtime documented in `backend/README.md`.
+
+## Development Notes
+
+- Keep frontend app work aligned with the existing prototype route in `src/app/prototype/CustomerHealthPrototype.tsx`.
+- Keep backend API changes inside `backend/customer_health/` and add focused tests in `backend/tests/`.
+- Do not commit `.env.local`, local log files, or generated server output.
+- Seed admin login for local verification: `admin@customerhealth.test` / `Admin@123`.
+- Prefer small, scoped changes that preserve the current dark command-center UI.

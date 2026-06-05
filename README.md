@@ -14,16 +14,48 @@ JPEG diagrams: [docs/discovery/jpeg/README.md](</C:/Users/taha.amjad/Documents/N
 
 PDF slide deck: [docs/discovery/slides/customer-health-discovery-slides.pdf](</C:/Users/taha.amjad/Documents/New project/docs/discovery/slides/customer-health-discovery-slides.pdf>).
 
-Local app URL:
+## Local Full-Stack Setup
+
+Install dependencies if this is a fresh checkout:
 
 ```powershell
-npm start
+npm install
+```
+
+Start the Python API and React frontend together:
+
+```powershell
+npm run dev:full
 ```
 
 Open:
 
 ```text
-http://127.0.0.1:5173/
+http://127.0.0.1:5173/login
+```
+
+The local app is configured through `.env.local` to call:
+
+```text
+http://127.0.0.1:8181
+```
+
+Seed login:
+
+```text
+admin@customerhealth.test / Admin@123
+```
+
+Run only the frontend:
+
+```powershell
+npm run dev:frontend
+```
+
+Run only the backend:
+
+```powershell
+npm run dev:backend
 ```
 
 ## Domain Setup

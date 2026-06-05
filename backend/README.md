@@ -4,6 +4,16 @@ This backend adds a dependency-free Python API for customer health scoring, aler
 
 ## Run
 
+From the project root, the easiest backend command is:
+
+```powershell
+npm run dev:backend
+```
+
+That script auto-detects a working Python 3 runtime, including the bundled Codex runtime when available.
+
+You can also run the backend directly:
+
 ```powershell
 python -m backend.run --host 127.0.0.1 --port 8181
 ```
@@ -20,7 +30,7 @@ Start the React app in another terminal:
 
 ```powershell
 $env:VITE_CUSTOMER_HEALTH_API_BASE="http://127.0.0.1:8181"
-npm run dev
+npm run dev:frontend
 ```
 
 Open `http://127.0.0.1:5173/login`.

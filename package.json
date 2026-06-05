@@ -5,6 +5,9 @@
   "description": "Customer Trust Early Warning System SaaS prototype.",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
+    "dev:frontend": "vite --host 127.0.0.1",
+    "dev:backend": "node scripts/customer-health-dev.mjs backend",
+    "dev:full": "node scripts/customer-health-dev.mjs full",
     "start": "vite --host 127.0.0.1",
     "build": "tsc --noEmit && vite build",
     "check": "tsc --noEmit",
